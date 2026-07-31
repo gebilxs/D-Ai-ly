@@ -1,0 +1,15 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { SOURCES } from "../../lib/sources";
+
+const base = import.meta.env.BASE_URL;
+---
+<BaseLayout title="来源">
+  <h1 class="page-title">来源</h1>
+  <p class="excerpt" style="margin-bottom: 1.5rem;">按媒体查看已收录文章。</p>
+  <div class="source-grid">
+    {SOURCES.map((s) => (
+      <a href={`${base}sources/${s.id}/`}>{s.name}</a>
+    ))}
+  </div>
+</BaseLayout>

@@ -1,0 +1,78 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { formatDate, SOURCES } from "../lib/sources";
+
+const base = import.meta.env.BASE_URL;
+const digests = (await getCollection("digests")).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+const articles = (await getCollection("articles")).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+const latestDigests = digests.slice(0, 7);
+const latestArticles = articles.slice(0, 10);
+---
+<BaseLayout title="D-Ai-ly" description="每日中文 AI 科技资讯速报与原文索引。">
+  <section class="hero">
+    <h1 class="hero-brand">D-Ai-ly</h1>
+    <p>六源中文科技媒体，每日抓取、整理成 blog。看今日速报，或按文章与来源慢慢翻。</p>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2>每日速报</h2>
+      {digests[0] && (
+        <a href={`${base}daily/${formatDate(digests[0].data.date)}/`}>查看最新 →</a>
+      )}
+    </div>
+    {latestDigests.length === 0 ? (
+      <p class="excerpt">暂无日更，请先运行爬虫或等待 Actions 更新。</p>
+    ) : (
+      <ul class="digest-list">
+        {latestDigests.map((d) => (
+          <li>
+            <a class="title" href={`${base}daily/${formatDate(d.data.date)}/`}>
+              {d.data.title}
+            </a>
+            <div class="meta">
+              <span>{formatDate(d.data.date)}</span>
+              <span class="pill">{d.data.count} 条</span>
+            </div>
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2>近期文章</h2>
+      <a href={`${base}posts/`}>全部文章 →</a>
+    </div>
+    <ul class="article-list">
+      {latestArticles.map((a) => (
+        <li>
+          <a class="title" href={`${base}posts/${a.id}/`}>{a.data.title}</a>
+          <div class="meta">
+            <span>{a.data.source}</span>
+            <span>{formatDate(a.data.date)}</span>
+          </div>
+          {a.data.summary && <p class="excerpt">{a.data.summary}</p>}
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2>订阅源</h2>
+      <a href={`${base}sources/`}>来源归档 →</a>
+    </div>
+    <div class="source-grid">
+      {SOURCES.map((s) => (
+        <a href={`${base}sources/${s.id}/`}>{s.name}</a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

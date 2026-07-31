@@ -1,0 +1,16 @@
+{
+  "name": "d-ai-ly",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "crawl": "python3 -m crawler.run",
+    "crawl:fixture": "python3 -m crawler.run --fixture"
+  },
+  "dependencies": {
+    "astro": "^5.12.0"
+  }
+}

@@ -1,0 +1,48 @@
+timezone: Asia/Shanghai
+
+sources:
+  - id: jiqizhixin
+    name: 机器之心
+    kind: rss
+    url: https://www.jiqizhixin.com/rss
+    html_fallback: https://www.jiqizhixin.com/
+
+  - id: qbitai
+    name: 量子位
+    kind: rss
+    url: https://www.qbitai.com/feed
+    html_fallback: https://www.qbitai.com/
+
+  - id: geekpark
+    name: 极客公园
+    kind: html
+    url: https://www.geekpark.net/
+    list_selectors:
+      - "a[href*='/news/']"
+      - "a[href*='/article/']"
+
+  - id: jazzyear
+    name: 甲子光年
+    kind: html
+    url: https://www.jazzyear.com/index.html
+    list_selectors:
+      - "a[href*='article']"
+      - "a[href*='detail']"
+      - "a[href*='/news']"
+
+  - id: sina_media
+    name: 新浪媒体号
+    kind: html
+    url: https://www.sina.cn/media/5703921756
+    list_selectors:
+      - "a[href*='sina']"
+      - "a[href*='article']"
+
+  - id: baai
+    name: 智源社区
+    kind: html
+    url: https://hub.baai.ac.cn/
+    list_selectors:
+      - "a[href*='/article']"
+      - "a[href*='/papers']"
+      - "a[href*='/news']"
