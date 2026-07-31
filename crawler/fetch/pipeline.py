@@ -57,8 +57,15 @@ def _try_rss_urls(
     target: date,
     date_filter: bool,
     headers: dict[str, str] | None = None,
-) -> tuple[list[Article], list[dict[str, Any]]]:
+) -> tuple[list[Article], list[dict[str, Any]], bool]:
+    """Returns (articles, errors, feed_parsed).
+
+    feed_parsed=True means at least one URL returned valid XML — even if
+    zero items matched the day filter. Callers must NOT HTML-fallback in
+    that case (relative \"N小时前\" would mis-date yesterday's posts).
+    """
     errors: list[dict[str, Any]] = []
+    feed_parsed = False
     for url in urls:
         if not url:
             continue
@@ -74,6 +81,7 @@ def _try_rss_urls(
                     }
                 )
                 continue
+            feed_parsed = True
             if date_filter:
                 arts = parse_feed_xml(
                     text,
@@ -86,7 +94,7 @@ def _try_rss_urls(
                     text, source_id=source_id, source_name=source_name
                 )
             if arts:
-                return arts, errors
+                return arts, errors, True
             errors.append(
                 {
                     "source_id": source_id,
@@ -95,6 +103,8 @@ def _try_rss_urls(
                     "error": "parsed 0 items for target filter",
                 }
             )
+            # Valid empty day — stop; do not try broken mirrors then HTML.
+            return [], errors, True
         except Exception as e:
             errors.append(
                 {
@@ -104,7 +114,7 @@ def _try_rss_urls(
                     "error": f"{type(e).__name__}: {e}",
                 }
             )
-    return [], errors
+    return [], errors, feed_parsed
 
 
 def _parse_rss_all(xml_text: str, *, source_id: str, source_name: str) -> list[Article]:
@@ -218,7 +228,7 @@ def fetch_source(
         if kind == "rss":
             urls = [src.get("url") or ""]
             urls.extend(src.get("mirrors") or [])
-            arts, errors = _try_rss_urls(
+            arts, errors, feed_parsed = _try_rss_urls(
                 urls,
                 source_id=sid,
                 source_name=name,
@@ -226,7 +236,10 @@ def fetch_source(
                 date_filter=date_filter,
                 headers=headers,
             )
-            if not arts:
+            # Only scrape HTML when the feed itself failed — not when the
+            # feed is healthy but has no posts for `target` (avoids 7-31
+            # posts labeled \"N小时前\" landing in the next calendar day).
+            if not arts and not feed_parsed:
                 fallback = src.get("html_fallback")
                 if fallback:
                     try:

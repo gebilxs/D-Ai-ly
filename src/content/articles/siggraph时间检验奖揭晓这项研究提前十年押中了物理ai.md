@@ -1,6 +1,6 @@
 ---
 title: "SIGGRAPH时间检验奖揭晓：这项研究，提前十年押中了物理AI"
-date: 2026-08-01
+date: 2026-07-31
 source: "量子位"
 source_id: qbitai
 url: "https://www.qbitai.com/2026/07/464328.html"

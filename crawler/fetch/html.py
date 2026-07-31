@@ -8,7 +8,7 @@ from urllib.parse import urljoin, urlparse
 
 from ..httputil import fetch_text
 from ..models import Article
-from .dates import extract_date_near, parse_any_datetime, to_shanghai_date
+from .dates import date_from_url, extract_date_near, parse_any_datetime, to_shanghai_date
 
 _SOURCE_HREF_RE: dict[str, re.Pattern[str]] = {
     "jiqizhixin": re.compile(r"/articles?/|/p/|jiqizhixin\.com/", re.I),
@@ -120,14 +120,8 @@ def parse_list_html(
         if url in seen:
             continue
         ctx = _strip(_context_window(html, m.start(), m.end()))
-        pub = extract_date_near(ctx, target)
-        if pub is None:
-            um = re.search(r"(20\d{2})[/-](\d{1,2})[/-](\d{1,2})", url)
-            if um:
-                try:
-                    pub = date(int(um.group(1)), int(um.group(2)), int(um.group(3)))
-                except ValueError:
-                    pub = None
+        # Absolute dates only — never treat \"N小时前\" as today.
+        pub = date_from_url(url) or extract_date_near(ctx, target)
         if date_filter and pub != target:
             continue
         if pub is None:

@@ -1,6 +1,6 @@
 ---
 title: "刚刚，即梦 Seedance 2.5来了！我狂测测测测……"
-date: 2026-08-01
+date: 2026-07-31
 source: "量子位"
 source_id: qbitai
 url: "https://www.qbitai.com/2026/07/464329.html"

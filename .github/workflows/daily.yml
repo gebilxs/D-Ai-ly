@@ -1,9 +1,9 @@
-name: Daily crawl and deploy
+name: Hourly crawl and deploy
 
 on:
   schedule:
-    # UTC 00:00 ≈ Asia/Shanghai 08:00
-    - cron: "0 0 * * *"
+    # Every hour (UTC) ≈ every hour in Asia/Shanghai
+    - cron: "0 * * * *"
   workflow_dispatch:
   push:
     branches: [main]

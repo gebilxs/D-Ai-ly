@@ -8,7 +8,7 @@ from xml.etree.ElementTree import Element
 
 from ..httputil import fetch_text
 from ..models import Article
-from .dates import parse_any_datetime, to_shanghai_date
+from .dates import parse_any_datetime, qbitai_url_month, to_shanghai_date
 
 
 def _local(tag: str) -> str:
@@ -144,7 +144,14 @@ def _maybe_article(
     dt = parse_any_datetime(published_raw)
     if dt is None:
         return None
-    if to_shanghai_date(dt) != target:
+    pub = to_shanghai_date(dt)
+    hint = qbitai_url_month(url) if "qbitai.com" in (url or "") else None
+    if hint is not None and (pub.year, pub.month) != hint:
+        try:
+            pub = pub.replace(year=hint[0], month=hint[1])
+        except ValueError:
+            pass
+    if pub != target:
         return None
     return Article(
         id=_article_id(url, title),
@@ -152,7 +159,7 @@ def _maybe_article(
         source_name=source_name,
         title=title,
         url=url,
-        published=target.isoformat(),
+        published=pub.isoformat(),
         summary=summary[:800],
         fetched_via=via,
     )

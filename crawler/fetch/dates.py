@@ -69,6 +69,53 @@ def parse_any_datetime(text: str) -> Optional[datetime]:
     return None
 
 
+def date_from_url(url: str) -> Optional[date]:
+    """Full calendar date in permalink: /2026/07/31/...
+
+    Avoids matching量子位 `/2026/07/464328.html` where the last segment is an id.
+    """
+    if not url:
+        return None
+    m = re.search(r"/(20\d{2})/(\d{1,2})/(\d{1,2})", url)
+    if not m:
+        return None
+    # If more digits follow, this is an article id, not a day.
+    if re.match(r"\d", url[m.end() :]):
+        return None
+    try:
+        return date(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+    except ValueError:
+        return None
+
+
+def qbitai_url_month(url: str) -> tuple[int, int] | None:
+    """量子位 permalink /YYYY/MM/<id>.html → (year, month)."""
+    m = re.search(r"/(20\d{2})/(\d{1,2})/\d+(?:\.html)?", url or "")
+    if not m:
+        return None
+    y, mo = int(m.group(1)), int(m.group(2))
+    if 1 <= mo <= 12:
+        return y, mo
+    return None
+
+
 def extract_date_near(text: str, target: date) -> Optional[date]:
-    dt = parse_any_datetime(text)
-    return to_shanghai_date(dt) if dt else None
+    """Extract a calendar date from nearby text.
+
+    Relative phrases (小时前/刚刚) are intentionally ignored here — they
+    collapse to \"now\" and mis-bucket yesterday's posts into today.
+    """
+    if not text:
+        return None
+    if re.search(r"(小时前|分钟前|刚刚|天前)", text):
+        # strip relative crumbs then look for absolute dates only
+        text = re.sub(r"\d+\s*(小时前|分钟前|天前)|刚刚", " ", text)
+    for pat in _DATE_PATTERNS:
+        m = pat.search(text)
+        if not m:
+            continue
+        try:
+            return date(int(m.group("y")), int(m.group("m")), int(m.group("d")))
+        except ValueError:
+            continue
+    return None

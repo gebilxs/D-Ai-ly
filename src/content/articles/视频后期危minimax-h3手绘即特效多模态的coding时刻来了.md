@@ -1,6 +1,6 @@
 ---
 title: "视频后期，危！MiniMax H3手绘即特效，多模态的「Coding时刻」来了"
-date: 2026-08-01
+date: 2026-07-31
 source: "量子位"
 source_id: qbitai
 url: "https://www.qbitai.com/2026/07/464277.html"

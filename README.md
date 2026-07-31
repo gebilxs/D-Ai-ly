@@ -43,10 +43,11 @@ npm run build
 
 GitHub Actions 工作流 [`.github/workflows/daily.yml`](.github/workflows/daily.yml)：
 
-- 每天 UTC 00:00（北京时间约 08:00）定时运行
+- **每小时**整点运行一次（`cron: 0 * * * *`，UTC）
 - 也可在 Actions 页手动 `workflow_dispatch`
 - 流程：源健康检查 → 爬取 → 写入 `src/content/` → `astro build` → 部署 Pages → 回写新增内容到 `main`
-- 源检查报告作为 artifact：`source-check-report`
+- 源检查报告作为 artifact：`link-check-reports`
+- 文章日期以 RSS `pubDate`（转上海时区）为准；RSS 正常但当日无新稿时不再用首页「N小时前」兜底，避免把昨天的稿打进今天
 
 ### 开启 Pages（首次必做一次）
 
