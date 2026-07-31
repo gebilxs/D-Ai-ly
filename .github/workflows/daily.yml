@@ -18,17 +18,13 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  crawl-build-deploy:
+  build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -66,17 +62,34 @@ jobs:
             git push
           fi
 
+      - name: Ensure GitHub Pages site exists
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh api "repos/${{ github.repository }}/pages" >/dev/null 2>&1; then
+            echo "Pages already configured"
+          else
+            echo "Creating Pages site (build_type=workflow)"
+            gh api -X POST "repos/${{ github.repository }}/pages" \
+              -H "Accept: application/vnd.github+json" \
+              -f build_type=workflow
+          fi
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
-        with:
-          # Auto-enable Pages with GitHub Actions as source if not configured yet
-          enablement: true
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
