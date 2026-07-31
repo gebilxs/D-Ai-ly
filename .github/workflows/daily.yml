@@ -39,6 +39,8 @@ jobs:
 
       - name: Deterministic crawl-endpoint health check
         id: source_check
+        env:
+          JIQIZHIXIN_COOKIE: ${{ secrets.JIQIZHIXIN_COOKIE }}
         run: python3 -m crawler.check_sources
         continue-on-error: true
 
@@ -54,6 +56,9 @@ jobs:
 
       - name: Crawl today's sources
         # Never use demo fixtures in production — only real source URLs
+        # Optional: repo Secret JIQIZHIXIN_COOKIE = browser Cookie header for 机器之心
+        env:
+          JIQIZHIXIN_COOKIE: ${{ secrets.JIQIZHIXIN_COOKIE }}
         run: python3 -m crawler.run --date today
         continue-on-error: true
 

@@ -86,15 +86,19 @@ sources:
 
   - id: jiqizhixin
     name: 机器之心
-    kind: weibo_api
+    kind: rss
+    url: https://www.jiqizhixin.com/rss
+    html_fallback: https://www.jiqizhixin.com/articles
+    homepage: https://www.jiqizhixin.com/
+    # Optional logged-in session via env/GitHub Secret (never commit cookies).
+    cookie_env: JIQIZHIXIN_COOKIE
+    # If cookie missing/expired, fall back to official Weibo timeline.
+    fallback_kind: weibo_api
     uid: "5013348633"
-    url: https://weibo.com/synced
-    homepage: https://weibo.com/synced
-    # Official site jiqizhixin.com is a data-service wall; public homepage = Weibo.
     check:
-      expect_host: weibo
-      alt_expect_host: t.cn
+      expect_host: jiqizhixin.com
+      alt_expect_host: weibo
       min_items: 1
       probe_links: 1
       allow_fail: true
-      notes: "jiqizhixin.com wall; weibo_api may require cookies from GH runners"
+      notes: "needs JIQIZHIXIN_COOKIE secret for官网; else weibo fallback"

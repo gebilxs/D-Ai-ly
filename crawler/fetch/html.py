@@ -155,8 +155,9 @@ def fetch_html_list(
     source_name: str,
     target: date,
     date_filter: bool = True,
+    headers: dict[str, str] | None = None,
 ) -> list[Article]:
-    text = fetch_text(url, timeout=30.0)
+    text = fetch_text(url, timeout=30.0, headers=headers)
     return parse_list_html(
         text,
         base_url=url,

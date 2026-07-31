@@ -164,8 +164,9 @@ def fetch_rss(
     source_id: str,
     source_name: str,
     target: date,
+    headers: dict[str, str] | None = None,
 ) -> list[Article]:
-    text = fetch_text(url, timeout=30.0)
+    text = fetch_text(url, timeout=30.0, headers=headers)
     return parse_feed_xml(
         text, source_id=source_id, source_name=source_name, target=target
     )

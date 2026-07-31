@@ -8,6 +8,8 @@ __pycache__/
 .env
 .env.*
 !.env.example
+cookies.txt
+*.cookies
 crawler/last_errors.json
 crawler/source_check_report.json
 crawler/homepage_check_report.json

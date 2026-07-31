@@ -66,6 +66,17 @@ src/pages/         # Astro 页面
 .github/workflows/ # 日更与部署
 ```
 
+## 机器之心 Cookie（可选）
+
+官网资讯页需要登录会话。把浏览器里的 `Cookie` 整段放进环境变量 **`JIQIZHIXIN_COOKIE`**（不要写进代码或 commit）：
+
+1. 浏览器登录 [jiqizhixin.com](https://www.jiqizhixin.com/)，打开开发者工具 → Network → 任选请求 → 复制 Request Headers 里的 `Cookie`
+2. **本地：** `export JIQIZHIXIN_COOKIE='...'` 后运行爬虫  
+3. **GitHub Actions：** Settings → Secrets → Actions → 新建 `JIQIZHIXIN_COOKIE`
+
+未配置或 Cookie 失效时，会回退到机器之心官方微博。会话会过期，需定期更新 Secret。
+
 ## 安全提醒
 
-若曾将 GitHub Personal Access Token 粘贴到聊天或日志中，请立刻到 GitHub 撤销并重新签发；仓库与 Actions 仅使用 `GITHUB_TOKEN`，切勿把 PAT 提交进代码。
+- 若曾将 GitHub PAT / 登录 Cookie 粘贴到聊天或日志中，请立刻撤销并重新登录签发；**切勿把密钥提交进代码**。
+- 仓库与 Actions 仅使用 `GITHUB_TOKEN`；机器之心 Cookie 只放在 Secret / 本地环境变量。

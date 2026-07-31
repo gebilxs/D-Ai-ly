@@ -6,7 +6,7 @@ from typing import Any
 
 import yaml
 
-from ..httputil import fetch_text, looks_like_xml
+from ..httputil import cookie_from_env, fetch_text, headers_with_cookie, looks_like_xml
 from ..models import Article
 from .html import enrich_summary_from_page, fetch_html_list
 from .jazzyear import fetch_jazzyear_scan
@@ -42,6 +42,13 @@ def _dedupe(articles: list[Article]) -> list[Article]:
     return ordered
 
 
+def _auth_headers(src: dict[str, Any]) -> dict[str, str] | None:
+    cookie = cookie_from_env(src.get("cookie_env"))
+    if not cookie:
+        return None
+    return headers_with_cookie(cookie)
+
+
 def _try_rss_urls(
     urls: list[str],
     *,
@@ -49,13 +56,14 @@ def _try_rss_urls(
     source_name: str,
     target: date,
     date_filter: bool,
+    headers: dict[str, str] | None = None,
 ) -> tuple[list[Article], list[dict[str, Any]]]:
     errors: list[dict[str, Any]] = []
     for url in urls:
         if not url:
             continue
         try:
-            text = fetch_text(url, timeout=30.0)
+            text = fetch_text(url, timeout=30.0, headers=headers)
             if not looks_like_xml(text):
                 errors.append(
                     {
@@ -205,6 +213,8 @@ def fetch_source(
     arts: list[Article] = []
 
     try:
+        headers = _auth_headers(src)
+
         if kind == "rss":
             urls = [src.get("url") or ""]
             urls.extend(src.get("mirrors") or [])
@@ -214,6 +224,7 @@ def fetch_source(
                 source_name=name,
                 target=target,
                 date_filter=date_filter,
+                headers=headers,
             )
             if not arts:
                 fallback = src.get("html_fallback")
@@ -225,6 +236,7 @@ def fetch_source(
                             source_name=name,
                             target=target,
                             date_filter=date_filter,
+                            headers=headers,
                         )
                     except Exception as e2:
                         errors.append(
@@ -233,6 +245,27 @@ def fetch_source(
                                 "stage": "html_fallback",
                                 "url": fallback,
                                 "error": f"{type(e2).__name__}: {e2}",
+                            }
+                        )
+            # Optional secondary fallback (e.g. weibo when cookie missing/expired)
+            if not arts and src.get("fallback_kind") == "weibo_api":
+                uid = str(src.get("uid") or "")
+                if uid:
+                    try:
+                        arts = fetch_weibo_uid(
+                            uid,
+                            source_id=sid,
+                            source_name=name,
+                            target=target,
+                            date_filter=date_filter,
+                        )
+                    except Exception as e3:
+                        errors.append(
+                            {
+                                "source_id": sid,
+                                "stage": "weibo_api_fallback",
+                                "url": f"uid:{uid}",
+                                "error": f"{type(e3).__name__}: {e3}",
                             }
                         )
             return arts, errors
@@ -284,6 +317,7 @@ def fetch_source(
             source_name=name,
             target=target,
             date_filter=date_filter,
+            headers=headers,
         )
         return arts, errors
     except Exception as e:

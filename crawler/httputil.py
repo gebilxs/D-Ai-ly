@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import socket
 import ssl
 import urllib.error
@@ -17,6 +18,24 @@ DEFAULT_UA = (
 
 def _ctx() -> ssl.SSLContext:
     return ssl.create_default_context()
+
+
+def cookie_from_env(env_name: str | None) -> str | None:
+    """Load a session cookie from environment. Never log the value."""
+    if not env_name:
+        return None
+    val = (os.environ.get(env_name) or "").strip()
+    return val or None
+
+
+def headers_with_cookie(
+    cookie: str | None,
+    base: dict[str, str] | None = None,
+) -> dict[str, str]:
+    hdrs = dict(base or {})
+    if cookie:
+        hdrs["Cookie"] = cookie
+    return hdrs
 
 
 def fetch_bytes(
@@ -41,8 +60,14 @@ def fetch_bytes(
         return resp.status, meta, raw
 
 
-def fetch_text(url: str, timeout: float = 25.0, encoding: Optional[str] = None) -> str:
-    status, meta, raw = fetch_bytes(url, timeout=timeout)
+def fetch_text(
+    url: str,
+    timeout: float = 25.0,
+    encoding: Optional[str] = None,
+    *,
+    headers: dict[str, str] | None = None,
+) -> str:
+    status, meta, raw = fetch_bytes(url, timeout=timeout, headers=headers)
     if encoding:
         return raw.decode(encoding, errors="replace")
     charset = "utf-8"
