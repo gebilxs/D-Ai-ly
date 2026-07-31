@@ -2,8 +2,8 @@
 import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { formatDate, SOURCES } from "../lib/sources";
+import { withBase } from "../lib/paths";
 
-const base = import.meta.env.BASE_URL;
 const digests = (await getCollection("digests")).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
 );
@@ -23,7 +23,7 @@ const latestArticles = articles.slice(0, 10);
     <div class="section-head">
       <h2>每日速报</h2>
       {digests[0] && (
-        <a href={`${base}daily/${formatDate(digests[0].data.date)}/`}>查看最新 →</a>
+        <a href={withBase(`daily/${formatDate(digests[0].data.date)}/`)}>查看最新 →</a>
       )}
     </div>
     {latestDigests.length === 0 ? (
@@ -32,7 +32,7 @@ const latestArticles = articles.slice(0, 10);
       <ul class="digest-list">
         {latestDigests.map((d) => (
           <li>
-            <a class="title" href={`${base}daily/${formatDate(d.data.date)}/`}>
+            <a class="title" href={withBase(`daily/${formatDate(d.data.date)}/`)}>
               {d.data.title}
             </a>
             <div class="meta">
@@ -48,12 +48,12 @@ const latestArticles = articles.slice(0, 10);
   <section class="section">
     <div class="section-head">
       <h2>近期文章</h2>
-      <a href={`${base}posts/`}>全部文章 →</a>
+      <a href={withBase("posts/")}>全部文章 →</a>
     </div>
     <ul class="article-list">
       {latestArticles.map((a) => (
         <li>
-          <a class="title" href={`${base}posts/${a.id}/`}>{a.data.title}</a>
+          <a class="title" href={withBase(`posts/${a.id}/`)}>{a.data.title}</a>
           <div class="meta">
             <span>{a.data.source}</span>
             <span>{formatDate(a.data.date)}</span>
@@ -67,11 +67,11 @@ const latestArticles = articles.slice(0, 10);
   <section class="section">
     <div class="section-head">
       <h2>订阅源</h2>
-      <a href={`${base}sources/`}>来源归档 →</a>
+      <a href={withBase("sources/")}>来源归档 →</a>
     </div>
     <div class="source-grid">
       {SOURCES.map((s) => (
-        <a href={`${base}sources/${s.id}/`}>{s.name}</a>
+        <a href={withBase(`sources/${s.id}/`)}>{s.name}</a>
       ))}
     </div>
   </section>
