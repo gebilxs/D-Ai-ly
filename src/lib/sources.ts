@@ -12,6 +12,9 @@ export type Source = {
   jumpLabel?: string;
 };
 
+/** Featured first in daily digests and source lists. */
+export const FEATURED_SOURCE_ID = "jiqizhixin";
+
 export const SOURCES: readonly Source[] = [
   {
     id: "jiqizhixin",
@@ -32,8 +35,20 @@ export const SOURCES: readonly Source[] = [
   { id: "baai", name: "智源社区", url: "https://hub.baai.ac.cn/" },
 ] as const;
 
+export const FEATURED_SOURCE = SOURCES.find((s) => s.id === FEATURED_SOURCE_ID)!;
+export const OTHER_SOURCES = SOURCES.filter((s) => s.id !== FEATURED_SOURCE_ID);
+
 export function sourceName(id: string): string {
   return SOURCES.find((s) => s.id === id)?.name ?? id;
+}
+
+/** Sort source groups so 机器之心 is always first. */
+export function sortSourceIds(ids: string[]): string[] {
+  return [...ids].sort((a, b) => {
+    if (a === FEATURED_SOURCE_ID) return -1;
+    if (b === FEATURED_SOURCE_ID) return 1;
+    return a.localeCompare(b);
+  });
 }
 
 export function formatDate(d: Date): string {

@@ -7,7 +7,7 @@ interface Props {
   description?: string;
 }
 
-const { title, description = "中文 AI 科技资讯日更：机器之心、量子位、极客公园等六源聚合。" } = Astro.props;
+const { title, description = "中文 AI 科技资讯日更：机器之心置顶，兼收量子位、极客公园等来源。" } = Astro.props;
 const pageTitle = title === "D-Ai-ly" ? "D-Ai-ly · 每日 AI 资讯" : `${title} · D-Ai-ly`;
 ---
 <!doctype html>

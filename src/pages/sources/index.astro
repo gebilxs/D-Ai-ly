@@ -1,13 +1,21 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { SOURCES } from "../../lib/sources";
+import { FEATURED_SOURCE, OTHER_SOURCES } from "../../lib/sources";
 import { withBase } from "../../lib/paths";
 ---
 <BaseLayout title="来源">
   <h1 class="page-title">来源</h1>
   <p class="excerpt" style="margin-bottom: 1.5rem;">按媒体查看已收录文章。</p>
+
+  <div class="featured-source" style="margin-bottom: 1.75rem;">
+    <div class="featured-source-head">
+      <h3><a href={withBase(`sources/${FEATURED_SOURCE.id}/`)}>{FEATURED_SOURCE.name}</a></h3>
+      <span class="pill featured-pill">置顶</span>
+    </div>
+  </div>
+
   <div class="source-grid">
-    {SOURCES.map((s) => (
+    {OTHER_SOURCES.map((s) => (
       <a href={withBase(`sources/${s.id}/`)}>{s.name}</a>
     ))}
   </div>

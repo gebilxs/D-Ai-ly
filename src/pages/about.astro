@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { SOURCES } from "../lib/sources";
+import { FEATURED_SOURCE, OTHER_SOURCES } from "../lib/sources";
 import { withBase } from "../lib/paths";
 ---
 <BaseLayout title="关于" description="关于 D-Ai-ly 的采集与发布方式。">
@@ -14,15 +14,20 @@ import { withBase } from "../lib/paths";
 
     <h2>信息源</h2>
     <ul>
-      {SOURCES.map((s) => (
+      <li>
+        <strong>{FEATURED_SOURCE.name}</strong>（置顶）
+        {" · "}
+        <a href={FEATURED_SOURCE.url} target="_blank" rel="noopener noreferrer">官网</a>
+        {FEATURED_SOURCE.jumpUrl && FEATURED_SOURCE.jumpLabel && (
+          <>
+            {" · "}
+            <a href={withBase(`jump/${FEATURED_SOURCE.id}/`)}>{FEATURED_SOURCE.jumpLabel}</a>
+          </>
+        )}
+      </li>
+      {OTHER_SOURCES.map((s) => (
         <li>
           <a href={s.url} target="_blank" rel="noopener noreferrer">{s.name}</a>
-          {s.jumpUrl && s.jumpLabel && (
-            <>
-              {" · "}
-              <a href={withBase(`jump/${s.id}/`)}>{s.jumpLabel}</a>
-            </>
-          )}
         </li>
       ))}
     </ul>

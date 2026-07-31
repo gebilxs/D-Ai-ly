@@ -1,7 +1,12 @@
 ---
 import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { formatDate, SOURCES } from "../lib/sources";
+import {
+  FEATURED_SOURCE,
+  FEATURED_SOURCE_ID,
+  OTHER_SOURCES,
+  formatDate,
+} from "../lib/sources";
 import { withBase } from "../lib/paths";
 
 const digests = (await getCollection("digests")).sort(
@@ -11,21 +16,66 @@ const articles = (await getCollection("articles")).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
 );
 const latestDigests = digests.slice(0, 7);
-const latestArticles = articles.slice(0, 10);
+const latestArticles = articles
+  .filter((a) => a.data.source_id !== FEATURED_SOURCE_ID)
+  .slice(0, 10);
+
+const latestDigest = digests[0];
+const featuredItems =
+  latestDigest?.data.items.filter((i) => i.source_id === FEATURED_SOURCE_ID) ??
+  [];
+const featuredArticles = articles
+  .filter((a) => a.data.source_id === FEATURED_SOURCE_ID)
+  .slice(0, 5);
 ---
 <BaseLayout title="D-Ai-ly" description="每日中文 AI 科技资讯速报与原文索引。">
   <section class="hero">
     <h1 class="hero-brand">D-Ai-ly</h1>
-    <p>六源中文科技媒体，每日抓取、整理成 blog。看今日速报，或按文章与来源慢慢翻。</p>
   </section>
 
   <section class="section">
     <div class="section-head">
       <h2>每日速报</h2>
-      {digests[0] && (
-        <a href={withBase(`daily/${formatDate(digests[0].data.date)}/`)}>查看最新 →</a>
+      {latestDigest && (
+        <a href={withBase(`daily/${formatDate(latestDigest.data.date)}/`)}>查看最新 →</a>
       )}
     </div>
+
+    <div class="featured-source">
+      <div class="featured-source-head">
+        <h3>
+          <a href={withBase(`sources/${FEATURED_SOURCE.id}/`)}>{FEATURED_SOURCE.name}</a>
+        </h3>
+        <div class="featured-source-links">
+          <a href={FEATURED_SOURCE.url} target="_blank" rel="noopener noreferrer">官网</a>
+          {FEATURED_SOURCE.jumpUrl && FEATURED_SOURCE.jumpLabel && (
+            <a href={withBase(`jump/${FEATURED_SOURCE.id}/`)}>{FEATURED_SOURCE.jumpLabel}</a>
+          )}
+        </div>
+      </div>
+      {featuredItems.length > 0 ? (
+        <ul class="article-list compact">
+          {featuredItems.map((item) => (
+            <li>
+              <a class="title" href={withBase(`posts/${item.slug}/`)}>{item.title}</a>
+              {item.summary && <p class="excerpt">{item.summary}</p>}
+            </li>
+          ))}
+        </ul>
+      ) : featuredArticles.length > 0 ? (
+        <ul class="article-list compact">
+          {featuredArticles.map((a) => (
+            <li>
+              <a class="title" href={withBase(`posts/${a.id}/`)}>{a.data.title}</a>
+              {a.data.summary && <p class="excerpt">{a.data.summary}</p>}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p class="excerpt featured-empty">今日暂未收录机器之心（官网需登录会话）。</p>
+      )}
+    </div>
+
     {latestDigests.length === 0 ? (
       <p class="excerpt">暂无日更，请先运行爬虫或等待 Actions 更新。</p>
     ) : (
@@ -69,8 +119,11 @@ const latestArticles = articles.slice(0, 10);
       <h2>订阅源</h2>
       <a href={withBase("sources/")}>来源归档 →</a>
     </div>
-    <div class="source-grid">
-      {SOURCES.map((s) => (
+    <div class="source-grid featured-first">
+      <a class="source-featured" href={withBase(`sources/${FEATURED_SOURCE.id}/`)}>
+        {FEATURED_SOURCE.name}
+      </a>
+      {OTHER_SOURCES.map((s) => (
         <a href={withBase(`sources/${s.id}/`)}>{s.name}</a>
       ))}
     </div>

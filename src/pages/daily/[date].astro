@@ -1,7 +1,13 @@
 ---
 import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { formatDate } from "../../lib/sources";
+import {
+  FEATURED_SOURCE,
+  FEATURED_SOURCE_ID,
+  formatDate,
+  sortSourceIds,
+  sourceName,
+} from "../../lib/sources";
 import { withBase } from "../../lib/paths";
 
 export async function getStaticPaths() {
@@ -19,6 +25,12 @@ for (const item of digest.data.items) {
   list.push(item);
   bySource.set(item.source_id, list);
 }
+
+// Always surface 机器之心 first, even when empty for the day.
+if (!bySource.has(FEATURED_SOURCE_ID)) {
+  bySource.set(FEATURED_SOURCE_ID, []);
+}
+const orderedIds = sortSourceIds([...bySource.keys()]);
 ---
 <BaseLayout title={digest.data.title} description={`${formatDate(digest.data.date)} 的 AI 资讯速报，共 ${digest.data.count} 条。`}>
   <article>
@@ -27,29 +39,44 @@ for (const item of digest.data.items) {
       <span>{formatDate(digest.data.date)}</span>
       <span class="pill">{digest.data.count} 条</span>
     </div>
-    <p class="excerpt" style="margin: 1.25rem 0 2rem;">
-      今日按来源整理。点击标题阅读站内摘要，或跳转原文。
-    </p>
 
-    {[...bySource.entries()].map(([sourceId, items]) => (
-      <section class="source-group">
-        <h2>
-          <a href={withBase(`sources/${sourceId}/`)} style="color: inherit; text-decoration: none;">
-            {items[0]?.source ?? sourceId}
-          </a>
-        </h2>
-        <ul>
-          {items.map((item) => (
-            <li>
-              <a class="title" href={withBase(`posts/${item.slug}/`)}>{item.title}</a>
-              {item.summary && <p class="excerpt">{item.summary}</p>}
-              <div class="meta">
-                <a href={item.url} target="_blank" rel="noopener noreferrer">原文链接</a>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </section>
-    ))}
+    {orderedIds.map((sourceId) => {
+      const items = bySource.get(sourceId) ?? [];
+      const isFeatured = sourceId === FEATURED_SOURCE_ID;
+      const name = items[0]?.source ?? sourceName(sourceId);
+      return (
+        <section class:list={["source-group", { "source-group-featured": isFeatured }]}>
+          <h2>
+            <a href={withBase(`sources/${sourceId}/`)} style="color: inherit; text-decoration: none;">
+              {name}
+            </a>
+            {isFeatured && <span class="pill featured-pill">置顶</span>}
+          </h2>
+          {isFeatured && (
+            <div class="featured-source-links" style="margin: -0.35rem 0 1rem;">
+              <a href={FEATURED_SOURCE.url} target="_blank" rel="noopener noreferrer">官网</a>
+              {FEATURED_SOURCE.jumpUrl && FEATURED_SOURCE.jumpLabel && (
+                <a href={withBase(`jump/${FEATURED_SOURCE.id}/`)}>{FEATURED_SOURCE.jumpLabel}</a>
+              )}
+            </div>
+          )}
+          {items.length === 0 ? (
+            <p class="excerpt">今日暂未收录。</p>
+          ) : (
+            <ul>
+              {items.map((item) => (
+                <li>
+                  <a class="title" href={withBase(`posts/${item.slug}/`)}>{item.title}</a>
+                  {item.summary && <p class="excerpt">{item.summary}</p>}
+                  <div class="meta">
+                    <a href={item.url} target="_blank" rel="noopener noreferrer">原文链接</a>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      );
+    })}
   </article>
 </BaseLayout>
