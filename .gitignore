@@ -9,3 +9,4 @@ __pycache__/
 .env.*
 !.env.example
 crawler/last_errors.json
+crawler/source_check_report.json

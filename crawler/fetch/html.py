@@ -8,15 +8,15 @@ from urllib.parse import urljoin, urlparse
 
 from ..httputil import fetch_text
 from ..models import Article
-from .dates import extract_date_near
+from .dates import extract_date_near, parse_any_datetime, to_shanghai_date
 
 _SOURCE_HREF_RE: dict[str, re.Pattern[str]] = {
     "jiqizhixin": re.compile(r"/articles?/|/p/|jiqizhixin\.com/", re.I),
     "qbitai": re.compile(r"qbitai\.com/\d{4}/\d{2}", re.I),
     "geekpark": re.compile(r"/news/\d|/article/", re.I),
-    "jazzyear": re.compile(r"article|detail|/news", re.I),
-    "sina_media": re.compile(r"sina\.(cn|com)|article", re.I),
-    "baai": re.compile(r"/article|/papers|/news", re.I),
+    "jazzyear": re.compile(r"article_info\.html\?id=\d+|article|detail|/news", re.I),
+    "sina_media": re.compile(r"sina\.(cn|com)|article|t\.cn", re.I),
+    "baai": re.compile(r"/view/\d+|hub\.baai|/article|/papers|/news", re.I),
 }
 
 _A_TAG_RE = re.compile(
@@ -25,6 +25,15 @@ _A_TAG_RE = re.compile(
 )
 _TAG_RE = re.compile(r"<[^>]+>")
 _WS_RE = re.compile(r"\s+")
+_JAZZY_ID_RE = re.compile(
+    r'article_info\.html\?id=(?P<id>\d+)[^>]*>?(?P<title>[^<]{6,120})',
+    re.I,
+)
+_JAZZY_DATE_TITLE_RE = re.compile(
+    r"(?P<title>[\u4e00-\u9fffA-Za-z0-9「」『』【】（）()·、，：:\-]{8,80})"
+    r".{0,40}?(?P<date>20\d{2}-\d{1,2}-\d{1,2})",
+    re.S,
+)
 
 
 def _strip(s: str) -> str:
@@ -45,7 +54,7 @@ def _href_ok(source_id: str, href: str) -> bool:
     return bool(pat.search(href))
 
 
-def _context_window(html: str, start: int, end: int, radius: int = 280) -> str:
+def _context_window(html: str, start: int, end: int, radius: int = 320) -> str:
     a = max(0, start - radius)
     b = min(len(html), end + radius)
     return html[a:b]
@@ -58,9 +67,45 @@ def parse_list_html(
     source_id: str,
     source_name: str,
     target: date,
+    date_filter: bool = True,
 ) -> list[Article]:
     seen: set[str] = set()
     out: list[Article] = []
+
+    # 甲子光年: prefer explicit article_info ids
+    if source_id == "jazzyear":
+        for m in _JAZZY_ID_RE.finditer(html):
+            aid = m.group("id")
+            title = _strip(m.group("title"))
+            url = urljoin(base_url, f"article_info.html?id={aid}")
+            ctx = _strip(_context_window(html, m.start(), m.end()))
+            pub = extract_date_near(ctx, target)
+            if pub is None:
+                # search a bit further for date
+                pub_dt = parse_any_datetime(ctx)
+                pub = to_shanghai_date(pub_dt) if pub_dt else None
+            if date_filter and pub != target:
+                continue
+            if not pub:
+                continue
+            if url in seen or len(title) < 6:
+                continue
+            seen.add(url)
+            out.append(
+                Article(
+                    id=_article_id(url, title),
+                    source_id=source_id,
+                    source_name=source_name,
+                    title=title,
+                    url=url,
+                    published=pub.isoformat(),
+                    summary="",
+                    fetched_via="html",
+                )
+            )
+        if out:
+            return out
+
     for m in _A_TAG_RE.finditer(html):
         href = unescape(m.group(1).strip())
         title = _strip(m.group(2))
@@ -83,7 +128,9 @@ def parse_list_html(
                     pub = date(int(um.group(1)), int(um.group(2)), int(um.group(3)))
                 except ValueError:
                     pub = None
-        if pub != target:
+        if date_filter and pub != target:
+            continue
+        if pub is None:
             continue
         seen.add(url)
         out.append(
@@ -93,7 +140,7 @@ def parse_list_html(
                 source_name=source_name,
                 title=title,
                 url=url,
-                published=target.isoformat(),
+                published=pub.isoformat(),
                 summary="",
                 fetched_via="html",
             )
@@ -107,6 +154,7 @@ def fetch_html_list(
     source_id: str,
     source_name: str,
     target: date,
+    date_filter: bool = True,
 ) -> list[Article]:
     text = fetch_text(url, timeout=30.0)
     return parse_list_html(
@@ -115,6 +163,7 @@ def fetch_html_list(
         source_id=source_id,
         source_name=source_name,
         target=target,
+        date_filter=date_filter,
     )
 
 

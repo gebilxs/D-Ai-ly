@@ -1,48 +1,98 @@
 timezone: Asia/Shanghai
 
-sources:
-  - id: jiqizhixin
-    name: 机器之心
-    kind: rss
-    url: https://www.jiqizhixin.com/rss
-    html_fallback: https://www.jiqizhixin.com/
+# kind:
+#   rss          - XML RSS/Atom (optional mirrors[])
+#   json_api     - JSON list endpoint
+#   html         - HTML list scrape
+#   sina_weibo   - Sina media / weibo timeline page
+#   weibo_api    - m.weibo.cn container JSON
+#   jazzyear_scan- probe article_info.html?id=N window
+#
+# check.expect_host: article URL host must contain this substring
 
+sources:
   - id: qbitai
     name: 量子位
     kind: rss
     url: https://www.qbitai.com/feed
     html_fallback: https://www.qbitai.com/
+    check:
+      expect_host: qbitai.com
+      min_items: 1
+      probe_links: 2
 
   - id: geekpark
     name: 极客公园
-    kind: html
-    url: https://www.geekpark.net/
-    list_selectors:
-      - "a[href*='/news/']"
-      - "a[href*='/article/']"
-
-  - id: jazzyear
-    name: 甲子光年
-    kind: html
-    url: https://www.jazzyear.com/index.html
-    list_selectors:
-      - "a[href*='article']"
-      - "a[href*='detail']"
-      - "a[href*='/news']"
+    kind: json_api
+    url: https://mainssl.geekpark.net/api/v1/posts
+    params:
+      per: "20"
+    items_path: posts
+    title_key: title
+    summary_key: abstract
+    date_key: published_at
+    id_key: id
+    url_template: "https://www.geekpark.net/news/{id}"
+    # API often returns link:null — prefer template
+    check:
+      expect_host: geekpark.net
+      min_items: 1
+      probe_links: 2
 
   - id: sina_media
-    name: 新浪媒体号
-    kind: html
+    name: 新智元（新浪媒体号）
+    kind: sina_weibo
     url: https://www.sina.cn/media/5703921756
-    list_selectors:
-      - "a[href*='sina']"
-      - "a[href*='article']"
+    check:
+      expect_host: t.cn
+      alt_expect_host: sina
+      min_items: 1
+      probe_links: 1
 
   - id: baai
     name: 智源社区
-    kind: html
-    url: https://hub.baai.ac.cn/
-    list_selectors:
-      - "a[href*='/article']"
-      - "a[href*='/papers']"
-      - "a[href*='/news']"
+    kind: json_api
+    method: POST
+    url: https://hub-api.baai.ac.cn/api/v1/story/list
+    params:
+      page: "1"
+      sort: new
+    items_path: data
+    item_nest: story_info
+    skip_if_true: is_event
+    title_key: title
+    summary_key: brief
+    date_key: created_at
+    story_id_key: story_id
+    url_template: "https://hub.baai.ac.cn/view/{id}"
+    id_key: id
+    check:
+      expect_host: hub.baai.ac.cn
+      min_items: 1
+      probe_links: 2
+
+  - id: jazzyear
+    name: 甲子光年
+    kind: jazzyear_scan
+    url: https://www.jazzyear.com/index.html
+    start_id: 1700
+    scan: 40
+    check:
+      expect_host: jazzyear.com
+      min_items: 1
+      probe_links: 1
+
+  - id: jiqizhixin
+    name: 机器之心
+    kind: weibo_api
+    uid: "5013348633"
+    url: https://weibo.com/synced
+    # Official site is a data-service login wall; RSS returns HTML.
+    # Fallback path: 机器之心Pro weibo timeline via m.weibo.cn.
+    check:
+      expect_host: weibo
+      alt_expect_host: t.cn
+      min_items: 1
+      probe_links: 1
+      allow_fail: true
+      notes: "jiqizhixin.com wall; weibo_api may require cookies from GH runners"

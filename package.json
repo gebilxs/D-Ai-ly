@@ -8,7 +8,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "crawl": "python3 -m crawler.run",
-    "crawl:fixture": "python3 -m crawler.run --fixture --date today"
+    "crawl:fixture": "python3 -m crawler.run --fixture --date today",
+    "check:sources": "python3 -m crawler.check_sources"
   },
   "dependencies": {
     "astro": "^5.12.0"

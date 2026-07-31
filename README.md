@@ -21,6 +21,10 @@
 pip install -r requirements.txt
 npm install
 
+# 确定性检查每个源（条目数 + 样本链接 HTTP 探测）
+python3 -m crawler.check_sources
+# 报告写入 crawler/source_check_report.json
+
 # 抓取当天（只写真实源；抓不到则为空）
 python3 -m crawler.run --date today
 # 本地调试才用 demo（example.com，不会进生产）
@@ -37,7 +41,8 @@ GitHub Actions 工作流 [`.github/workflows/daily.yml`](.github/workflows/daily
 
 - 每天 UTC 00:00（北京时间约 08:00）定时运行
 - 也可在 Actions 页手动 `workflow_dispatch`
-- 流程：爬取 → 写入 `src/content/` → `astro build` → 部署 Pages → 回写新增内容到 `main`
+- 流程：源健康检查 → 爬取 → 写入 `src/content/` → `astro build` → 部署 Pages → 回写新增内容到 `main`
+- 源检查报告作为 artifact：`source-check-report`
 
 ### 开启 Pages（首次必做一次）
 

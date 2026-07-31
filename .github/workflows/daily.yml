@@ -32,6 +32,19 @@ jobs:
       - name: Install Python deps
         run: pip install -r requirements.txt
 
+      - name: Deterministic source health check
+        id: source_check
+        run: python3 -m crawler.check_sources
+        continue-on-error: true
+
+      - name: Upload source check report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-check-report
+          path: crawler/source_check_report.json
+          if-no-files-found: ignore
+
       - name: Crawl today's sources
         # Never use demo fixtures in production — only real source URLs
         run: python3 -m crawler.run --date today
