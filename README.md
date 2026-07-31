@@ -39,9 +39,12 @@ GitHub Actions 工作流 [`.github/workflows/daily.yml`](.github/workflows/daily
 - 也可在 Actions 页手动 `workflow_dispatch`
 - 流程：爬取 → 写入 `src/content/` → `astro build` → 部署 Pages → 回写新增内容到 `main`
 
-### 开启 Pages
+### 开启 Pages（首次必做）
 
-仓库 **Settings → Pages → Build and deployment → Source** 选 **GitHub Actions**。
+1. 打开仓库 **Settings → Pages**
+2. **Build and deployment → Source** 选 **GitHub Actions**
+3. 打开 **Actions**，确认 `Daily crawl and deploy` 成功；若无运行，点 **Run workflow**
+4. 站点地址：https://gebilxs.github.io/D-Ai-ly/
 
 ## 目录
 

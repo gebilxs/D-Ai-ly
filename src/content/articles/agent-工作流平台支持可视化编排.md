@@ -10,6 +10,4 @@ tags:
 article_id: sina-agent
 ---
 
-低代码 Agent 编排上线，集成检索、工具调用与审计日志，面向企业知识助手。
-
-[阅读原文](https://www.sina.cn/demo-agent)
+本页为资讯索引，完整报道请阅读原文。

@@ -1,5 +1,5 @@
 ---
-import { getCollection, render } from "astro:content";
+import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { formatDate } from "../../lib/sources";
 
@@ -12,7 +12,6 @@ export async function getStaticPaths() {
 }
 
 const { article } = Astro.props;
-const { Content } = await render(article);
 const base = import.meta.env.BASE_URL;
 ---
 <BaseLayout title={article.data.title} description={article.data.summary || article.data.title}>
@@ -27,8 +26,6 @@ const base = import.meta.env.BASE_URL;
     <a class="cta" href={article.data.url} target="_blank" rel="noopener noreferrer">
       阅读原文 →
     </a>
-    <div style="margin-top: 2rem;">
-      <Content />
-    </div>
+    <p class="excerpt" style="margin-top: 2rem;">本页为资讯索引，完整报道请阅读原文。</p>
   </article>
 </BaseLayout>

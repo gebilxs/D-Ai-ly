@@ -69,7 +69,6 @@ def write_article(art: Article) -> Path:
         # collision: append short id
         path = ARTICLES_DIR / f"{slug}-{art.id[:8]}.md"
     summary = (art.summary or "").replace("\n", " ").strip()
-    body = summary or "暂无摘要，请阅读原文。"
     fm = "\n".join(
         [
             "---",
@@ -84,9 +83,7 @@ def write_article(art: Article) -> Path:
             f"article_id: {art.id}",
             "---",
             "",
-            body,
-            "",
-            f"[阅读原文]({art.url})",
+            "本页为资讯索引，完整报道请阅读原文。",
             "",
         ]
     )

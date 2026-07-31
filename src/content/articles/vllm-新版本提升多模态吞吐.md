@@ -10,6 +10,4 @@ tags:
 article_id: vllm-release
 ---
 
-开源推理框架更新调度与缓存策略，多模态请求吞吐提升，部署成本下降。
-
-[阅读原文](https://www.qbitai.com/demo-vllm)
+本页为资讯索引，完整报道请阅读原文。

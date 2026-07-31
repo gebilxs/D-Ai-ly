@@ -10,6 +10,4 @@ tags:
 article_id: ds-v4-flash
 ---
 
-DeepSeek 发布 V4-Flash，强调更快响应与更低成本，面向日常对话与工具调用场景开放 API。
-
-[阅读原文](https://api-docs.deepseek.com/news/news260731)
+本页为资讯索引，完整报道请阅读原文。

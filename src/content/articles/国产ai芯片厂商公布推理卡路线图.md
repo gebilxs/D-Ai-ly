@@ -10,6 +10,4 @@ tags:
 article_id: jazzy-chip
 ---
 
-面向大模型推理的新一代加速卡公布规格与生态合作计划。
-
-[阅读原文](https://www.jazzyear.com/demo-chip)
+本页为资讯索引，完整报道请阅读原文。
