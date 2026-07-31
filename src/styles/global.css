@@ -239,6 +239,28 @@ a:hover {
   color: var(--ink-soft);
 }
 
+.xhs-card {
+  margin: 2rem 0 0;
+  padding: 1.25rem 1.25rem 1rem;
+  max-width: 20rem;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+
+.xhs-card img {
+  width: 100%;
+  height: auto;
+  border-radius: 2px;
+}
+
+.xhs-card figcaption {
+  margin-top: 0.75rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
 .source-group {
   margin: 2rem 0;
 }

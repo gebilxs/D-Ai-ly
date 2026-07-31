@@ -1,47 +1,30 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { FEATURED_SOURCE, OTHER_SOURCES } from "../lib/sources";
 import { withBase } from "../lib/paths";
 ---
-<BaseLayout title="关于" description="关于 D-Ai-ly 的采集与发布方式。">
+<BaseLayout title="关于" description="关于 D-Ai-ly：自动聚合的中文 AI / 科技资讯日更。">
   <article class="prose">
     <h1 class="page-title">关于 D-Ai-ly</h1>
     <p>
       D-Ai-ly 是一份自动更新的中文 AI / 科技资讯 blog。
-      每天从公开媒体源抓取当日标题与摘要，生成「今日速报」与单篇索引页，并部署到 GitHub Pages。
+      每天从各路公开来源里筛出重要讯息，有意义，但很费时间。
     </p>
-    <p>本站不转载全文，每条均提供原文链接，便于你跳转阅读完整报道。</p>
-
-    <h2>信息源</h2>
-    <ul>
-      <li>
-        <strong>{FEATURED_SOURCE.name}</strong>（置顶）
-        {" · "}
-        <a href={FEATURED_SOURCE.url} target="_blank" rel="noopener noreferrer">官网</a>
-        {FEATURED_SOURCE.jumpUrl && FEATURED_SOURCE.jumpLabel && (
-          <>
-            {" · "}
-            <a href={withBase(`jump/${FEATURED_SOURCE.id}/`)}>{FEATURED_SOURCE.jumpLabel}</a>
-          </>
-        )}
-      </li>
-      {OTHER_SOURCES.map((s) => (
-        <li>
-          <a href={s.url} target="_blank" rel="noopener noreferrer">{s.name}</a>
-        </li>
-      ))}
-    </ul>
-
-    <h2>更新节奏</h2>
-    <p>由 GitHub Actions 每小时定时运行爬虫并重新构建站点。也可手动触发 workflow。</p>
-
-    <h2>仓库</h2>
+    <p>本站希望替大家省下这部分力气：只做索引与摘要，不转载全文，每条都附原文链接。</p>
     <p>
-      源码与内容见
-      <a href="https://github.com/gebilxs/D-Ai-ly" target="_blank" rel="noopener noreferrer">
-        github.com/gebilxs/D-Ai-ly
-      </a>
-      。
+      若觉得有帮助，欢迎关注作者
+      <a href="https://github.com/gebilxs" target="_blank" rel="noopener noreferrer">GitHub</a>
+      与小红书。
     </p>
+
+    <figure class="xhs-card">
+      <img
+        src={withBase("xiaohongshu-qr.png")}
+        alt="小红书 gebilxs 二维码，小红书号 1109069735"
+        width="360"
+        height="480"
+        loading="lazy"
+      />
+      <figcaption>扫码关注小红书 · gebilxs（1109069735）</figcaption>
+    </figure>
   </article>
 </BaseLayout>
