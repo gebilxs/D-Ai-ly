@@ -20,7 +20,11 @@ const articles = (await getCollection("articles"))
   <div class="meta" style="margin-bottom: 1.5rem;">
     <span>{articles.length} 篇</span>
     {meta && (
-      <a href={meta.url} target="_blank" rel="noopener noreferrer">访问官网</a>
+      meta.jumpLabel ? (
+        <a href={withBase(`jump/${meta.id}/`)}>{meta.jumpLabel}</a>
+      ) : (
+        <a href={meta.url} target="_blank" rel="noopener noreferrer">访问官网</a>
+      )
     )}
   </div>
   {articles.length === 0 ? (

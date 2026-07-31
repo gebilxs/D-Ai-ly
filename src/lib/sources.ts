@@ -1,10 +1,22 @@
 /** Public homepage links shown on the site / README (not crawl API endpoints). */
-export const SOURCES = [
+export type Source = {
+  id: string;
+  name: string;
+  /** Link used on the site (jump target when walled). */
+  url: string;
+  /** Original homepage if it is behind a wall / unusable. */
+  originalUrl?: string;
+  /** When set, site shows a jump link instead of the walled homepage. */
+  jumpLabel?: string;
+};
+
+export const SOURCES: readonly Source[] = [
   {
     id: "jiqizhixin",
     name: "机器之心",
-    // Official site is a data-service wall; public feed is the official Weibo.
+    originalUrl: "https://www.jiqizhixin.com/",
     url: "https://weibo.com/synced",
+    jumpLabel: "跳转官方微博",
   },
   { id: "qbitai", name: "量子位", url: "https://www.qbitai.com/" },
   { id: "geekpark", name: "极客公园", url: "https://www.geekpark.net/" },

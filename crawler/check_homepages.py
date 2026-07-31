@@ -41,12 +41,13 @@ class HomeReport:
 
 def load_display_sources() -> list[dict[str, str]]:
     text = SOURCES_TS.read_text(encoding="utf-8")
-    # Support single-line and multi-line objects (with // comments between fields).
+    # Support single-line and multi-line objects. Prefer `url` (jump target).
     out: list[dict[str, str]] = []
     for block in re.split(r"\}\s*,\s*\{", text):
         sid = re.search(r'id:\s*"([^"]+)"', block)
         name = re.search(r'name:\s*"([^"]+)"', block)
-        url = re.search(r'url:\s*"([^"]+)"', block)
+        # Match the outbound `url:` field, not originalUrl
+        url = re.search(r'(?<![A-Za-z])url:\s*"([^"]+)"', block)
         if sid and name and url:
             out.append({"id": sid.group(1), "name": name.group(1), "url": url.group(1)})
     if len(out) < 6:
