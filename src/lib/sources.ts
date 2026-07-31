@@ -2,11 +2,13 @@
 export type Source = {
   id: string;
   name: string;
-  /** Link used on the site (jump target when walled). */
+  /** Primary homepage / 官网. */
   url: string;
-  /** Original homepage if it is behind a wall / unusable. */
-  originalUrl?: string;
-  /** When set, site shows a jump link instead of the walled homepage. */
+  /**
+   * When the homepage is behind a wall, optional public jump target
+   * (e.g. official Weibo) shown next to the 官网 link.
+   */
+  jumpUrl?: string;
   jumpLabel?: string;
 };
 
@@ -14,8 +16,9 @@ export const SOURCES: readonly Source[] = [
   {
     id: "jiqizhixin",
     name: "机器之心",
-    originalUrl: "https://www.jiqizhixin.com/",
-    url: "https://weibo.com/synced",
+    url: "https://www.jiqizhixin.com/",
+    // Homepage currently serves a data-service wall; keep 官网 + usable jump.
+    jumpUrl: "https://weibo.com/synced",
     jumpLabel: "跳转官方微博",
   },
   { id: "qbitai", name: "量子位", url: "https://www.qbitai.com/" },

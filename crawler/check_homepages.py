@@ -41,15 +41,17 @@ class HomeReport:
 
 def load_display_sources() -> list[dict[str, str]]:
     text = SOURCES_TS.read_text(encoding="utf-8")
-    # Support single-line and multi-line objects. Prefer `url` (jump target).
     out: list[dict[str, str]] = []
     for block in re.split(r"\}\s*,\s*\{", text):
         sid = re.search(r'id:\s*"([^"]+)"', block)
         name = re.search(r'name:\s*"([^"]+)"', block)
-        # Match the outbound `url:` field, not originalUrl
         url = re.search(r'(?<![A-Za-z])url:\s*"([^"]+)"', block)
+        jump = re.search(r'jumpUrl:\s*"([^"]+)"', block)
         if sid and name and url:
-            out.append({"id": sid.group(1), "name": name.group(1), "url": url.group(1)})
+            item = {"id": sid.group(1), "name": name.group(1), "url": url.group(1)}
+            if jump:
+                item["jumpUrl"] = jump.group(1)
+            out.append(item)
     if len(out) < 6:
         raise RuntimeError(f"expected 6 display sources, parsed {len(out)}")
     return out
@@ -57,11 +59,19 @@ def load_display_sources() -> list[dict[str, str]]:
 
 def readme_urls() -> list[str]:
     text = README.read_text(encoding="utf-8")
-    # only the 信息源 section links
     section = re.search(r"## 信息源\n(.*?)(?:\n## |\Z)", text, re.S)
     if not section:
         return []
     return re.findall(r"\((https?://[^)]+)\)", section.group(1))
+
+
+def expected_public_urls(sources: list[dict[str, str]]) -> set[str]:
+    urls: set[str] = set()
+    for s in sources:
+        urls.add(s["url"].rstrip("/"))
+        if s.get("jumpUrl"):
+            urls.add(s["jumpUrl"].rstrip("/"))
+    return urls
 
 
 def check_wall(url: str, body_hint: str) -> str | None:
@@ -76,32 +86,51 @@ def main() -> int:
     reports: list[HomeReport] = []
     for s in sources:
         r = HomeReport(id=s["id"], name=s["name"], url=s["url"], ok=False)
+        jump = s.get("jumpUrl")
         ok, detail = url_ok(s["url"], timeout=20.0)
         r.detail = detail
+        wall_hit = False
         if not ok:
             r.errors.append(detail)
         else:
-            # fetch body snippet for wall detection
             try:
                 from crawler.httputil import fetch_text
 
                 body = fetch_text(s["url"], timeout=20.0)[:3000]
                 wall = check_wall(s["url"], body)
                 if wall:
-                    r.errors.append(wall)
+                    wall_hit = True
                     r.detail = wall
+                    if jump:
+                        # Official site exists but is walled; jump is required.
+                        r.errors.append(f"note: {wall}")
+                    else:
+                        r.errors.append(wall)
             except Exception as e:
-                # url_ok already passed; wall check best-effort
                 r.detail = f"{detail}; wall-check skipped: {e}"
-        r.ok = len(r.errors) == 0
+
+        if jump:
+            jok, jdetail = url_ok(jump, timeout=20.0)
+            if not jok:
+                r.errors.append(f"jump failed: {jump} ({jdetail})")
+            elif wall_hit:
+                # Wall on 官网 + working jump → overall OK
+                r.errors = [e for e in r.errors if not e.startswith("note:")]
+                r.detail = f"官网有墙；jump ok ({jdetail})"
+            else:
+                r.detail = f"{r.detail}; jump ok ({jdetail})"
+
+        # notes are informational only
+        hard = [e for e in r.errors if not e.startswith("note:")]
+        r.ok = len(hard) == 0
         reports.append(r)
 
-    ts_urls = {s["url"].rstrip("/") for s in sources}
+    expected = expected_public_urls(sources)
     md_urls = {u.rstrip("/") for u in readme_urls()}
     sync_errors: list[str] = []
-    if md_urls != ts_urls:
-        only_md = sorted(md_urls - ts_urls)
-        only_ts = sorted(ts_urls - md_urls)
+    if md_urls != expected:
+        only_md = sorted(md_urls - expected)
+        only_ts = sorted(expected - md_urls)
         if only_md:
             sync_errors.append(f"README-only urls: {only_md}")
         if only_ts:

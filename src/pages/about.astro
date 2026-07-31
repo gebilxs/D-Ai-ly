@@ -16,14 +16,12 @@ import { withBase } from "../lib/paths";
     <ul>
       {SOURCES.map((s) => (
         <li>
-          {s.jumpLabel ? (
+          <a href={s.url} target="_blank" rel="noopener noreferrer">{s.name}</a>
+          {s.jumpUrl && s.jumpLabel && (
             <>
-              {s.name}
               {" · "}
               <a href={withBase(`jump/${s.id}/`)}>{s.jumpLabel}</a>
             </>
-          ) : (
-            <a href={s.url} target="_blank" rel="noopener noreferrer">{s.name}</a>
           )}
         </li>
       ))}

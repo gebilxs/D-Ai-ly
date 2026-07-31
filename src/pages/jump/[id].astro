@@ -2,14 +2,14 @@
 import { SOURCES } from "../../lib/sources";
 
 export async function getStaticPaths() {
-  return SOURCES.filter((s) => s.jumpLabel).map((s) => ({
+  return SOURCES.filter((s) => s.jumpUrl).map((s) => ({
     params: { id: s.id },
     props: { source: s },
   }));
 }
 
 const { source } = Astro.props;
-const target = source.url;
+const target = source.jumpUrl!;
 ---
 <!doctype html>
 <html lang="zh-CN">
@@ -36,7 +36,7 @@ const target = source.url;
   </head>
   <body>
     <p>
-      {source.name}官网当前为数据服务墙，正在{source.jumpLabel}…
+      {source.name}官网（{source.url}）当前为数据服务墙，正在{source.jumpLabel}…
     </p>
     <p>
       若未自动跳转，请点击：

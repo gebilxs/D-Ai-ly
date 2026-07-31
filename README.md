@@ -6,7 +6,7 @@
 
 ## 信息源
 
-- [机器之心 · 跳转官方微博](https://weibo.com/synced)（`jiqizhixin.com` 有数据服务墙）
+- [机器之心](https://www.jiqizhixin.com/)（官网；当前多为数据服务墙）· [跳转官方微博](https://weibo.com/synced)
 - [量子位](https://www.qbitai.com/)
 - [极客公园](https://www.geekpark.net/)
 - [甲子光年](https://www.jazzyear.com/)
