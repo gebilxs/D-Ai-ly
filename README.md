@@ -6,11 +6,11 @@
 
 ## 信息源
 
-- [机器之心](https://www.jiqizhixin.com/)
+- [机器之心](https://weibo.com/synced)（官网已改为数据服务墙，改链官方微博）
 - [量子位](https://www.qbitai.com/)
-- [甲子光年](https://www.jazzyear.com/index.html)
 - [极客公园](https://www.geekpark.net/)
-- [新浪媒体号](https://www.sina.cn/media/5703921756)
+- [甲子光年](https://www.jazzyear.com/)
+- [新智元](https://www.sina.cn/media/5703921756)
 - [智源社区](https://hub.baai.ac.cn/)
 
 本站只索引标题、摘要与原文链接，不转载全文。
@@ -21,7 +21,11 @@
 pip install -r requirements.txt
 npm install
 
-# 确定性检查每个源（条目数 + 样本链接 HTTP 探测）
+# 检查 README / 站点上展示的六个源官网链接
+python3 -m crawler.check_homepages
+# 报告写入 crawler/homepage_check_report.json
+
+# 检查爬虫端点（条目数 + 样本原文链接 HTTP 探测）
 python3 -m crawler.check_sources
 # 报告写入 crawler/source_check_report.json
 

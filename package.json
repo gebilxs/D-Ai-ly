@@ -9,7 +9,8 @@
     "preview": "astro preview",
     "crawl": "python3 -m crawler.run",
     "crawl:fixture": "python3 -m crawler.run --fixture --date today",
-    "check:sources": "python3 -m crawler.check_sources"
+    "check:sources": "python3 -m crawler.check_sources",
+    "check:homepages": "python3 -m crawler.check_homepages"
   },
   "dependencies": {
     "astro": "^5.12.0"

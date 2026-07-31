@@ -40,9 +40,10 @@ sources:
       probe_links: 2
 
   - id: sina_media
-    name: 新智元（新浪媒体号）
+    name: 新智元
     kind: sina_weibo
     url: https://www.sina.cn/media/5703921756
+    homepage: https://www.sina.cn/media/5703921756
     check:
       expect_host: t.cn
       alt_expect_host: sina
@@ -74,7 +75,8 @@ sources:
   - id: jazzyear
     name: 甲子光年
     kind: jazzyear_scan
-    url: https://www.jazzyear.com/index.html
+    url: https://www.jazzyear.com/
+    homepage: https://www.jazzyear.com/
     start_id: 1700
     scan: 40
     check:
@@ -87,8 +89,8 @@ sources:
     kind: weibo_api
     uid: "5013348633"
     url: https://weibo.com/synced
-    # Official site is a data-service login wall; RSS returns HTML.
-    # Fallback path: 机器之心Pro weibo timeline via m.weibo.cn.
+    homepage: https://weibo.com/synced
+    # Official site jiqizhixin.com is a data-service wall; public homepage = Weibo.
     check:
       expect_host: weibo
       alt_expect_host: t.cn

@@ -116,9 +116,16 @@ def url_ok(url: str, timeout: float = 15.0) -> tuple[bool, str]:
     if len(raw) < 32:
         return False, "body too small"
     # Detect soft-404 / login walls that still return 200
-    head = raw[:2000].decode("utf-8", errors="ignore").lower()
-    if "数据服务已上线" in head and "jiqizhixin" in url:
+    head = raw[:4000].decode("utf-8", errors="ignore")
+    head_l = head.lower()
+    if "jiqizhixin.com" in url and (
+        "数据服务已上线" in head or "机器之心·数据服务" in head
+    ):
         return False, "jiqizhixin data-service wall"
+    if status == 200 and len(raw) < 80:
+        return False, "body too small for homepage"
+    if "just a moment" in head_l and "cloudflare" in head_l:
+        return False, "cloudflare challenge"
     return True, f"http {status} bytes={len(raw)}"
 
 

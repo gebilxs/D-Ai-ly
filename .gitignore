@@ -10,3 +10,4 @@ __pycache__/
 !.env.example
 crawler/last_errors.json
 crawler/source_check_report.json
+crawler/homepage_check_report.json
