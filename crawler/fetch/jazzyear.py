@@ -18,9 +18,6 @@ _DATE_RE = re.compile(
     r"(20\d{2}[-/年]\d{1,2}[-/月]\d{1,2}日?|"
     r"20\d{2}-\d{1,2}-\d{1,2})",
 )
-_EMPTY_MARKERS = ("找不到", "404", "不存在", "页面不存在", "登录甲子光年")
-
-
 def _article_id(url: str, title: str) -> str:
     return hashlib.sha1((url or title).strip().encode("utf-8")).hexdigest()[:16]
 
