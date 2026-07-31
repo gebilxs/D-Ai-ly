@@ -1,7 +1,2 @@
-{"id": "ds-v4-flash", "source_id": "jiqizhixin", "source_name": "机器之心", "title": "DeepSeek V4-Flash 正式上线 API", "url": "https://api-docs.deepseek.com/news/news260731", "summary": "DeepSeek 发布 V4-Flash，强调更快响应与更低成本，面向日常对话与工具调用场景开放 API。"}
-{"id": "qwen-img", "source_id": "jiqizhixin", "source_name": "机器之心", "title": "通义千问图像模型更新：长文排版更稳", "url": "https://www.jiqizhixin.com/articles/demo-qwen-image", "summary": "报道称新版图像生成在信息图与中文排版上更清晰，适合知识卡片类内容生产。"}
-{"id": "vllm-release", "source_id": "qbitai", "source_name": "量子位", "title": "vLLM 新版本提升多模态吞吐", "url": "https://www.qbitai.com/demo-vllm", "summary": "开源推理框架更新调度与缓存策略，多模态请求吞吐提升，部署成本下降。"}
-{"id": "baai-open", "source_id": "baai", "source_name": "智源社区", "title": "智源开源新基座模型评测套件", "url": "https://hub.baai.ac.cn/demo-eval", "summary": "面向中文与多任务场景的开源评测工具发布，方便复现榜单与对比实验。"}
-{"id": "geek-robot", "source_id": "geekpark", "source_name": "极客公园", "title": "具身智能创业公司完成新一轮融资", "url": "https://www.geekpark.net/news/demo-robot", "summary": "聚焦仓储与巡检场景的机器人公司融资，计划扩大量产与软件栈投入。"}
-{"id": "jazzy-chip", "source_id": "jazzyear", "source_name": "甲子光年", "title": "国产AI芯片厂商公布推理卡路线图", "url": "https://www.jazzyear.com/demo-chip", "summary": "面向大模型推理的新一代加速卡公布规格与生态合作计划。"}
-{"id": "sina-agent", "source_id": "sina_media", "source_name": "新浪媒体号", "title": "Agent 工作流平台支持可视化编排", "url": "https://www.sina.cn/demo-agent", "summary": "低代码 Agent 编排上线，集成检索、工具调用与审计日志，面向企业知识助手。"}
+{"id": "demo-1", "source_id": "jiqizhixin", "source_name": "机器之心", "title": "[DEMO] 本地联调样例勿上线", "url": "https://example.com/demo/jiqizhixin-1", "summary": "仅供本地 --fixture 调试，生产环境禁止使用。"}
+{"id": "demo-2", "source_id": "qbitai", "source_name": "量子位", "title": "[DEMO] 本地联调样例勿上线", "url": "https://example.com/demo/qbitai-1", "summary": "仅供本地 --fixture 调试，生产环境禁止使用。"}

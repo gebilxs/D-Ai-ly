@@ -33,7 +33,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Crawl today's sources
-        if: github.event_name != 'push'
+        # Never use demo fixtures in production — only real source URLs
         run: python3 -m crawler.run --date today
         continue-on-error: true
 
@@ -48,7 +48,6 @@ jobs:
           npm run build
 
       - name: Commit new content
-        if: github.event_name != 'push'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -68,18 +67,3 @@ jobs:
           force_orphan: true
           user_name: github-actions[bot]
           user_email: 41898282+github-actions[bot]@users.noreply.github.com
-
-      - name: Try enable Pages from gh-pages branch
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          if gh api "repos/${{ github.repository }}/pages" >/dev/null 2>&1; then
-            echo "Pages already enabled"
-            exit 0
-          fi
-          # May fail if token lacks admin; then enable once in Settings UI
-          gh api -X POST "repos/${{ github.repository }}/pages" \
-            -H "Accept: application/vnd.github+json" \
-            -f "source[branch]=gh-pages" \
-            -f "source[path]=/"

@@ -21,10 +21,10 @@
 pip install -r requirements.txt
 npm install
 
-# 抓取当天（外网不可达时自动回落 fixtures）
-python3 crawler/run.py --date today
-# 或强制 demo 数据
-python3 crawler/run.py --fixture
+# 抓取当天（只写真实源；抓不到则为空）
+python3 -m crawler.run --date today
+# 本地调试才用 demo（example.com，不会进生产）
+python3 -m crawler.run --fixture
 
 npm run dev
 # 构建

@@ -206,7 +206,7 @@ def map_fixture_sources(arts: list[Article]) -> list[Article]:
 def run(
     date_str: str = "today",
     *,
-    allow_fixture: bool = True,
+    allow_fixture: bool = False,
     force_fixture: bool = False,
 ) -> dict:
     target = parse_target_date(date_str)
@@ -320,17 +320,17 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument(
         "--fixture",
         action="store_true",
-        help="force load demo fixtures (skip live crawl)",
+        help="local demo only: load fixtures (never used in production deploy)",
     )
     p.add_argument(
-        "--no-fixture",
+        "--allow-fixture-fallback",
         action="store_true",
-        help="do not fall back to fixtures when crawl is empty",
+        help="if live crawl is empty, fall back to demo fixtures (local debug)",
     )
     args = p.parse_args(argv)
     run(
         args.date,
-        allow_fixture=not args.no_fixture,
+        allow_fixture=args.allow_fixture_fallback,
         force_fixture=args.fixture,
     )
     return 0
