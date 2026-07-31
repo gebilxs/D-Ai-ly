@@ -10,15 +10,13 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 concurrency:
   group: pages-deploy
   cancel-in-progress: false
 
 jobs:
-  build:
+  crawl-build-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -62,34 +60,26 @@ jobs:
             git push
           fi
 
-      - name: Ensure GitHub Pages site exists
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          force_orphan: true
+          user_name: github-actions[bot]
+          user_email: 41898282+github-actions[bot]@users.noreply.github.com
+
+      - name: Try enable Pages from gh-pages branch
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if gh api "repos/${{ github.repository }}/pages" >/dev/null 2>&1; then
-            echo "Pages already configured"
-          else
-            echo "Creating Pages site (build_type=workflow)"
-            gh api -X POST "repos/${{ github.repository }}/pages" \
-              -H "Accept: application/vnd.github+json" \
-              -f build_type=workflow
+            echo "Pages already enabled"
+            exit 0
           fi
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          # May fail if token lacks admin; then enable once in Settings UI
+          gh api -X POST "repos/${{ github.repository }}/pages" \
+            -H "Accept: application/vnd.github+json" \
+            -f "source[branch]=gh-pages" \
+            -f "source[path]=/"

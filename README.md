@@ -39,12 +39,14 @@ GitHub Actions 工作流 [`.github/workflows/daily.yml`](.github/workflows/daily
 - 也可在 Actions 页手动 `workflow_dispatch`
 - 流程：爬取 → 写入 `src/content/` → `astro build` → 部署 Pages → 回写新增内容到 `main`
 
-### 开启 Pages
+### 开启 Pages（首次必做一次）
 
-工作流会通过 `configure-pages` 的 `enablement` 自动启用 Pages（Source = GitHub Actions）。
-若仍失败，请手动：Settings → Pages → Source 选 **GitHub Actions**，再在 Actions 里重跑。
+Actions 会把站点推到 `gh-pages` 分支。首次请手动：
 
-站点地址：https://gebilxs.github.io/D-Ai-ly/
+1. 打开 **Settings → Pages**
+2. **Build and deployment → Source** 选 **Deploy from a branch**
+3. Branch 选 **`gh-pages`** / **`/ (root)`** → Save
+4. 等 1–2 分钟后访问：https://gebilxs.github.io/D-Ai-ly/
 
 ## 目录
 
