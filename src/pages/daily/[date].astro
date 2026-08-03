@@ -6,7 +6,6 @@ import {
   FEATURED_SOURCE_ID,
   formatDate,
   sortSourceIds,
-  sourceName,
 } from "../../lib/sources";
 import { withBase } from "../../lib/paths";
 
@@ -43,17 +42,10 @@ const orderedIds = sortSourceIds([...bySource.keys()]);
     {orderedIds.map((sourceId) => {
       const items = bySource.get(sourceId) ?? [];
       const isFeatured = sourceId === FEATURED_SOURCE_ID;
-      const name = items[0]?.source ?? sourceName(sourceId);
       return (
         <section class:list={["source-group", { "source-group-featured": isFeatured }]}>
-          <h2>
-            <a href={withBase(`sources/${sourceId}/`)} style="color: inherit; text-decoration: none;">
-              {name}
-            </a>
-            {isFeatured && <span class="pill featured-pill">置顶</span>}
-          </h2>
           {isFeatured && (
-            <div class="featured-source-links" style="margin: -0.35rem 0 1rem;">
+            <div class="featured-source-links" style="margin: 0 0 1rem;">
               <a href={FEATURED_SOURCE.url} target="_blank" rel="noopener noreferrer">官网</a>
               {FEATURED_SOURCE.jumpUrl && FEATURED_SOURCE.jumpLabel && (
                 <a href={withBase(`jump/${FEATURED_SOURCE.id}/`)}>{FEATURED_SOURCE.jumpLabel}</a>
@@ -61,7 +53,7 @@ const orderedIds = sortSourceIds([...bySource.keys()]);
             </div>
           )}
           {items.length === 0 ? (
-            <p class="excerpt">今日暂未收录。</p>
+            isFeatured ? <p class="excerpt">今日暂未收录。</p> : null
           ) : (
             <ul>
               {items.map((item) => (

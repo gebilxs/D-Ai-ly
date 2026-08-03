@@ -98,7 +98,6 @@ const featuredArticles = articles
   <section class="section">
     <div class="section-head">
       <h2>近期文章</h2>
-      <a href={withBase("posts/")}>全部文章 →</a>
     </div>
     <ul class="article-list">
       {latestArticles.map((a) => (
@@ -117,7 +116,6 @@ const featuredArticles = articles
   <section class="section">
     <div class="section-head">
       <h2>订阅源</h2>
-      <a href={withBase("sources/")}>来源归档 →</a>
     </div>
     <div class="source-grid featured-first">
       <a class="source-featured" href={withBase(`sources/${FEATURED_SOURCE.id}/`)}>
