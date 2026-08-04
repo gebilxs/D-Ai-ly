@@ -16,9 +16,6 @@ const articles = (await getCollection("articles")).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
 );
 const latestDigests = digests.slice(0, 7);
-const latestArticles = articles
-  .filter((a) => a.data.source_id !== FEATURED_SOURCE_ID)
-  .slice(0, 10);
 
 const latestDigest = digests[0];
 const featuredItems =
@@ -93,24 +90,6 @@ const featuredArticles = articles
         ))}
       </ul>
     )}
-  </section>
-
-  <section class="section">
-    <div class="section-head">
-      <h2>近期文章</h2>
-    </div>
-    <ul class="article-list">
-      {latestArticles.map((a) => (
-        <li>
-          <a class="title" href={withBase(`posts/${a.id}/`)}>{a.data.title}</a>
-          <div class="meta">
-            <span>{a.data.source}</span>
-            <span>{formatDate(a.data.date)}</span>
-          </div>
-          {a.data.summary && <p class="excerpt">{a.data.summary}</p>}
-        </li>
-      ))}
-    </ul>
   </section>
 
   <section class="section">
