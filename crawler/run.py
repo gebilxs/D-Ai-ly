@@ -46,19 +46,26 @@ def yaml_escape(s: str) -> str:
     return f'"{s}"'
 
 
-def load_existing_keys() -> tuple[set[str], set[str]]:
-    urls: set[str] = set()
-    titles: set[str] = set()
+def load_existing_index() -> tuple[dict[str, str], dict[str, str]]:
+    """Return url->date and title->date for already-written articles.
+
+    Dates are used so a re-fetched old post cannot be forced into today's
+    digest just because the URL/title already exists on disk.
+    """
+    urls: dict[str, str] = {}
+    titles: dict[str, str] = {}
     if not ARTICLES_DIR.exists():
         return urls, titles
     for path in ARTICLES_DIR.glob("*.md"):
         text = path.read_text(encoding="utf-8")
         um = re.search(r'^url:\s*["\']?(.+?)["\']?\s*$', text, re.M)
         tm = re.search(r'^title:\s*["\']?(.+?)["\']?\s*$', text, re.M)
+        dm = re.search(r"^date:\s*(\d{4}-\d{2}-\d{2})", text, re.M)
+        day = dm.group(1) if dm else ""
         if um:
-            urls.add(um.group(1).strip().rstrip("/").lower())
+            urls[um.group(1).strip().rstrip("/").lower()] = day
         if tm:
-            titles.add(tm.group(1).strip().lower())
+            titles[tm.group(1).strip().lower()] = day
     return urls, titles
 
 
@@ -237,16 +244,17 @@ def run(
                     }
                 )
 
-    existing_urls, existing_titles = load_existing_keys()
+    existing_urls, existing_titles = load_existing_index()
     created: list[str] = []
     day_articles: list[Article] = []
     slug_by_id: dict[str, str] = {}
+    target_s = target.isoformat()
 
     # Include already-written articles for this date into digest
     for path in ARTICLES_DIR.glob("*.md"):
         text = path.read_text(encoding="utf-8")
         dm = re.search(r"^date:\s*(\d{4}-\d{2}-\d{2})", text, re.M)
-        if not dm or dm.group(1) != target.isoformat():
+        if not dm or dm.group(1) != target_s:
             continue
         tm = re.search(r'^title:\s*["\']?(.*?)["\']?\s*$', text, re.M)
         sm = re.search(r'^source:\s*["\']?(.*?)["\']?\s*$', text, re.M)
@@ -263,7 +271,7 @@ def run(
             source_name=sm.group(1) if sm else "unknown",
             title=tm.group(1),
             url=um.group(1),
-            published=target.isoformat(),
+            published=target_s,
             summary=sum_m.group(1) if sum_m else "",
         )
         day_articles.append(art)
@@ -272,17 +280,30 @@ def run(
     for art in articles:
         key_url = art.url.rstrip("/").lower()
         key_title = art.title.strip().lower()
-        if key_url in existing_urls or (key_title and key_title in existing_titles):
-            # still ensure it's in day's digest list
-            if not any(a.url.rstrip("/").lower() == key_url for a in day_articles):
+        # Fetched item must itself claim today's date
+        if art.published and art.published != target_s:
+            continue
+        if key_url in existing_urls:
+            # Same URL already on disk: only keep it in today's digest when
+            # the stored calendar day matches. Never let a mis-dated re-fetch
+            # pull an older article into a newer daily log.
+            if existing_urls[key_url] == target_s and not any(
+                a.url.rstrip("/").lower() == key_url for a in day_articles
+            ):
                 day_articles.append(art)
                 slug_by_id[art.id] = slugify(art.title, art.id)
             continue
+        if key_title and key_title in existing_titles:
+            # Same title, different URL: skip only when the collision is
+            # already on today's shelf (true same-day dup). A repeat title
+            # from another day with a new URL is still written.
+            if existing_titles[key_title] == target_s:
+                continue
         path = write_article(art)
         created.append(str(path.relative_to(ROOT)))
-        existing_urls.add(key_url)
+        existing_urls[key_url] = target_s
         if key_title:
-            existing_titles.add(key_title)
+            existing_titles[key_title] = target_s
         day_articles.append(art)
         slug_by_id[art.id] = path.stem
 

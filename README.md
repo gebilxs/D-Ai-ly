@@ -48,6 +48,8 @@ GitHub Actions 工作流 [`.github/workflows/daily.yml`](.github/workflows/daily
 - 流程：源健康检查 → 爬取 → 写入 `src/content/` → `astro build` → 部署 Pages → 回写新增内容到 `main`
 - 源检查报告作为 artifact：`link-check-reports`
 - 文章日期以 RSS `pubDate`（转上海时区）为准；RSS 正常但当日无新稿时不再用首页「N小时前」兜底，避免把昨天的稿打进今天
+- 新智元（sina 短链）带绝对日期的旧帖不会再被「今天/小时前」相对时间重打成今天；已入库的旧文也不会被写进新的日更
+- 本地校验：`python3 -m crawler.test_date_bucketing`；若日更被污染可跑 `python3 -m crawler.rebuild_digests`
 
 ### 开启 Pages（首次必做一次）
 

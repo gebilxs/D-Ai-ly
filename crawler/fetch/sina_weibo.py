@@ -26,9 +26,20 @@ _FALLBACK_RE = re.compile(
     re.S,
 )
 
+# Relative crumbs must sit on the same short block as the t.cn link.
+# Do NOT use re.S here — otherwise "今天/小时前" from a new post can
+# latch onto an older post's short URL further down the page.
+_RELATIVE_RE = re.compile(
+    r"(?:今天|小时前|分钟前|刚刚).{0,80}?(?P<body>.{15,200}?)(?P<url>https?://t\.cn/\w+)",
+)
+
 
 def _article_id(url: str, title: str) -> str:
     return hashlib.sha1((url or title).strip().encode("utf-8")).hexdigest()[:16]
+
+
+def _norm_url(url: str) -> str:
+    return (url or "").strip().rstrip("/").lower()
 
 
 def _clean_title(body: str) -> str:
@@ -45,6 +56,75 @@ def _clean_title(body: str) -> str:
     return body or "微博资讯"
 
 
+def parse_sina_weibo_text(
+    text: str,
+    *,
+    source_id: str,
+    source_name: str,
+    target: date,
+    date_filter: bool = True,
+) -> list[Article]:
+    """Parse plain-text (tags already stripped) sina media timeline."""
+    seen: set[str] = set()
+    out: list[Article] = []
+
+    for pat in (_BLOCK_RE, _FALLBACK_RE):
+        for m in pat.finditer(text):
+            dt = parse_any_datetime(m.group("date"))
+            if dt is None:
+                continue
+            pub = to_shanghai_date(dt)
+            link = m.group("url").strip()
+            key = _norm_url(link)
+            if not key or key in seen:
+                continue
+            # Skip homepage noise
+            if "sina.cn/media" in link and "t.cn" not in link:
+                continue
+            # Always reserve the URL once an absolute date is known —
+            # even when it is not today's target. Otherwise the relative
+            # "今天/小时前" pass can re-stamp yesterday's short links as today.
+            seen.add(key)
+            if date_filter and pub != target:
+                continue
+            title = _clean_title(m.group("body"))
+            out.append(
+                Article(
+                    id=_article_id(link, title),
+                    source_id=source_id,
+                    source_name=source_name,
+                    title=title,
+                    url=link,
+                    published=pub.isoformat(),
+                    summary=re.sub(r"\s+", " ", m.group("body")).strip()[:400],
+                    fetched_via="sina_weibo",
+                )
+            )
+
+    # Relative "今天" posts without absolute date: treat as today when present
+    if not date_filter or target == today_shanghai():
+        for m in _RELATIVE_RE.finditer(text):
+            link = m.group("url").strip()
+            key = _norm_url(link)
+            if not key or key in seen:
+                continue
+            title = _clean_title(m.group("body"))
+            seen.add(key)
+            out.append(
+                Article(
+                    id=_article_id(link, title),
+                    source_id=source_id,
+                    source_name=source_name,
+                    title=title,
+                    url=link,
+                    published=today_shanghai().isoformat(),
+                    summary=re.sub(r"\s+", " ", m.group("body")).strip()[:400],
+                    fetched_via="sina_weibo",
+                )
+            )
+    return out
+
+
 def fetch_sina_weibo_media(
     url: str,
     *,
@@ -59,59 +139,10 @@ def fetch_sina_weibo_media(
     text = re.sub(r"<style[\s\S]*?</style>", " ", text, flags=re.I)
     text = re.sub(r"<[^>]+>", "\n", text)
     text = re.sub(r"\n+", "\n", text)
-
-    seen: set[str] = set()
-    out: list[Article] = []
-    for pat in (_BLOCK_RE, _FALLBACK_RE):
-        for m in pat.finditer(text):
-            dt = parse_any_datetime(m.group("date"))
-            if dt is None:
-                continue
-            pub = to_shanghai_date(dt)
-            if date_filter and pub != target:
-                continue
-            link = m.group("url").strip()
-            if link in seen:
-                continue
-            # Skip homepage noise
-            if "sina.cn/media" in link and "t.cn" not in link:
-                continue
-            title = _clean_title(m.group("body"))
-            seen.add(link)
-            out.append(
-                Article(
-                    id=_article_id(link, title),
-                    source_id=source_id,
-                    source_name=source_name,
-                    title=title,
-                    url=link,
-                    published=pub.isoformat(),
-                    summary=re.sub(r"\s+", " ", m.group("body")).strip()[:400],
-                    fetched_via="sina_weibo",
-                )
-            )
-    # Relative "今天" posts without absolute date: treat as today when present
-    if not date_filter or target == today_shanghai():
-        for m in re.finditer(
-            r"(今天|小时前|分钟前|刚刚).{0,40}(?P<body>.{15,300}?)(?P<url>https?://t\.cn/\w+)",
-            text,
-            re.S,
-        ):
-            link = m.group("url")
-            if link in seen:
-                continue
-            title = _clean_title(m.group("body"))
-            seen.add(link)
-            out.append(
-                Article(
-                    id=_article_id(link, title),
-                    source_id=source_id,
-                    source_name=source_name,
-                    title=title,
-                    url=link,
-                    published=today_shanghai().isoformat(),
-                    summary=re.sub(r"\s+", " ", m.group("body")).strip()[:400],
-                    fetched_via="sina_weibo",
-                )
-            )
-    return out
+    return parse_sina_weibo_text(
+        text,
+        source_id=source_id,
+        source_name=source_name,
+        target=target,
+        date_filter=date_filter,
+    )
