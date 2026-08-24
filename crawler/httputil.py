@@ -4,6 +4,7 @@ import json
 import os
 import socket
 import ssl
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -45,6 +46,7 @@ def fetch_bytes(
     method: str = "GET",
     data: bytes | None = None,
     headers: dict[str, str] | None = None,
+    retries: int = 1,
 ) -> tuple[int, dict[str, str], bytes]:
     hdrs = {
         "User-Agent": DEFAULT_UA,
@@ -53,11 +55,22 @@ def fetch_bytes(
     }
     if headers:
         hdrs.update(headers)
-    req = urllib.request.Request(url, data=data, headers=hdrs, method=method)
-    with urllib.request.urlopen(req, timeout=timeout, context=_ctx()) as resp:
-        raw = resp.read()
-        meta = {k.lower(): v for k, v in resp.headers.items()}
-        return resp.status, meta, raw
+    attempt = 0
+    while True:
+        req = urllib.request.Request(url, data=data, headers=hdrs, method=method)
+        try:
+            with urllib.request.urlopen(req, timeout=timeout, context=_ctx()) as resp:
+                raw = resp.read()
+                meta = {k.lower(): v for k, v in resp.headers.items()}
+                return resp.status, meta, raw
+        except urllib.error.HTTPError as e:
+            # Anti-burst 403/429 (seen on qbitai) usually clears on a
+            # short backoff; retry once before surfacing the failure.
+            if e.code in (403, 429) and attempt < retries:
+                attempt += 1
+                time.sleep(2.0 * attempt)
+                continue
+            raise
 
 
 def fetch_text(

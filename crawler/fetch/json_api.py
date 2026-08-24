@@ -35,26 +35,40 @@ def fetch_json_api(
     """Generic JSON list fetcher configured via sources.yaml fields."""
     sid = src["id"]
     name = src["name"]
-    url = src["url"]
+    base_url = src["url"]
     method = (src.get("method") or "GET").upper()
     params = src.get("params") or {}
     form = src.get("form")
-    if params and method == "GET":
-        join = "&" if "?" in url else "?"
-        url = f"{url}{join}{urlencode(params)}"
-    elif params and method == "POST" and form is None:
-        # BAAI style: querystring + empty POST body
-        join = "&" if "?" in url else "?"
-        url = f"{url}{join}{urlencode(params)}"
-        form = {}
-
-    data = fetch_json(url, method=method, form=form)
+    # Single-page endpoints return only a handful of items; anything that
+    # scrolls past between hourly runs is lost forever. `pages: N` walks
+    # the page param to widen the window.
+    pages = max(1, int(src.get("pages") or 1))
     items_path = src.get("items_path") or "posts"
-    items = _get_path(data, items_path)
-    if items is None and isinstance(data, list):
-        items = data
-    if not isinstance(items, list):
-        raise RuntimeError(f"{sid}: items_path '{items_path}' not a list")
+
+    items: list[Any] = []
+    for page in range(1, pages + 1):
+        page_params = dict(params)
+        if pages > 1:
+            page_params["page"] = str(page)
+        url = base_url
+        page_form = form
+        if page_params and method == "GET":
+            join = "&" if "?" in url else "?"
+            url = f"{url}{join}{urlencode(page_params)}"
+        elif page_params and method == "POST" and page_form is None:
+            # BAAI style: querystring + empty POST body
+            join = "&" if "?" in url else "?"
+            url = f"{url}{join}{urlencode(page_params)}"
+            page_form = {}
+        data = fetch_json(url, method=method, form=page_form)
+        page_items = _get_path(data, items_path)
+        if page_items is None and isinstance(data, list):
+            page_items = data
+        if not isinstance(page_items, list):
+            raise RuntimeError(f"{sid}: items_path '{items_path}' not a list")
+        if not page_items:
+            break
+        items.extend(page_items)
 
     title_key = src.get("title_key") or "title"
     summary_key = src.get("summary_key") or "abstract"

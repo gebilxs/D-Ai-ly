@@ -282,6 +282,42 @@ def fetch_source(
                                 "error": f"{type(e3).__name__}: {e3}",
                             }
                         )
+            # Extra pages of the same feed (WordPress /feed?paged=N): union
+            # items into the result instead of mirrors' first-success-wins.
+            # A tiny feed page (10 items) can scroll today's posts past the
+            # window between two hourly runs.
+            if feed_parsed:
+                seen = {a.url.rstrip("/").lower() for a in arts}
+                for extra in src.get("paged_feeds") or []:
+                    try:
+                        text = fetch_text(extra, timeout=30.0, headers=headers)
+                        if not looks_like_xml(text):
+                            continue
+                        if date_filter:
+                            extra_arts = parse_feed_xml(
+                                text,
+                                source_id=sid,
+                                source_name=name,
+                                target=target,
+                            )
+                        else:
+                            extra_arts = _parse_rss_all(
+                                text, source_id=sid, source_name=name
+                            )
+                        for a in extra_arts:
+                            key = a.url.rstrip("/").lower()
+                            if key not in seen:
+                                seen.add(key)
+                                arts.append(a)
+                    except Exception as e4:
+                        errors.append(
+                            {
+                                "source_id": sid,
+                                "stage": "paged_feed",
+                                "url": extra,
+                                "error": f"{type(e4).__name__}: {e4}",
+                            }
+                        )
             return arts, errors
 
         if kind == "json_api":

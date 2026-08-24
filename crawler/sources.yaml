@@ -15,6 +15,9 @@ sources:
     name: 量子位
     kind: rss
     url: https://www.qbitai.com/feed
+    # Feed page holds only 10 items; page 2 widens the hourly window.
+    paged_feeds:
+      - https://www.qbitai.com/feed?paged=2
     html_fallback: https://www.qbitai.com/
     check:
       expect_host: qbitai.com
@@ -55,6 +58,9 @@ sources:
     kind: json_api
     method: POST
     url: https://hub-api.baai.ac.cn/api/v1/story/list
+    # API ignores page-size params (fixed 6 items/page); walk 3 pages so
+    # busy-day posts don't scroll past between hourly runs.
+    pages: 3
     params:
       page: "1"
       sort: new
