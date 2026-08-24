@@ -94,6 +94,9 @@ sources:
     cookie_env: JIQIZHIXIN_COOKIE
     # If cookie missing/expired, fall back to official Weibo timeline.
     fallback_kind: weibo_api
+    # m.weibo.cn container API rejects anonymous requests with 432;
+    # pass a logged-in cookie via MWEIBO_COOKIE env/secret.
+    fallback_cookie_env: MWEIBO_COOKIE
     uid: "5013348633"
     check:
       expect_host: jiqizhixin.com

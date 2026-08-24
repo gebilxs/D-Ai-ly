@@ -271,6 +271,7 @@ def fetch_source(
                             source_name=name,
                             target=target,
                             date_filter=date_filter,
+                            cookie=cookie_from_env(src.get("fallback_cookie_env")),
                         )
                     except Exception as e3:
                         errors.append(
@@ -308,6 +309,7 @@ def fetch_source(
                 source_name=name,
                 target=target,
                 date_filter=date_filter,
+                cookie=cookie_from_env(src.get("cookie_env")),
             )
             return arts, errors
 

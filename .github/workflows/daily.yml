@@ -41,6 +41,7 @@ jobs:
         id: source_check
         env:
           JIQIZHIXIN_COOKIE: ${{ secrets.JIQIZHIXIN_COOKIE }}
+          MWEIBO_COOKIE: ${{ secrets.MWEIBO_COOKIE }}
         run: python3 -m crawler.check_sources
         continue-on-error: true
 
@@ -57,8 +58,10 @@ jobs:
       - name: Crawl today's sources
         # Never use demo fixtures in production — only real source URLs
         # Optional: repo Secret JIQIZHIXIN_COOKIE = browser Cookie header for 机器之心
+        # Optional: repo Secret MWEIBO_COOKIE = logged-in m.weibo.cn cookie (weibo 432 anti-crawl)
         env:
           JIQIZHIXIN_COOKIE: ${{ secrets.JIQIZHIXIN_COOKIE }}
+          MWEIBO_COOKIE: ${{ secrets.MWEIBO_COOKIE }}
         run: python3 -m crawler.run --date today
         continue-on-error: true
 

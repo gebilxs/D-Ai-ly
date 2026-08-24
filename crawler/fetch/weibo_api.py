@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import re
+import urllib.error
 from datetime import date, datetime, timedelta
 from typing import Any
 
@@ -71,16 +72,26 @@ def fetch_weibo_uid(
     source_name: str,
     target: date,
     date_filter: bool = True,
+    cookie: str | None = None,
 ) -> list[Article]:
     url = _API.format(uid=uid)
-    data: Any = fetch_json(
-        url,
-        timeout=25.0,
-        headers={
-            "Referer": f"https://m.weibo.cn/u/{uid}",
-            "X-Requested-With": "XMLHttpRequest",
-        },
-    )
+    headers = {
+        "Referer": f"https://m.weibo.cn/u/{uid}",
+        "X-Requested-With": "XMLHttpRequest",
+    }
+    if cookie:
+        headers["Cookie"] = cookie
+    try:
+        data: Any = fetch_json(url, timeout=25.0, headers=headers)
+    except urllib.error.HTTPError as e:
+        if e.code == 432:
+            # m.weibo.cn anti-crawl: anonymous datacenter requests get 432.
+            # A logged-in browser cookie (SUB=...) via MWEIBO_COOKIE fixes it.
+            raise RuntimeError(
+                f"weibo api http 432 (anti-crawl) for uid={uid}: "
+                "set MWEIBO_COOKIE env/secret to a logged-in m.weibo.cn cookie"
+            ) from e
+        raise
     cards = ((data or {}).get("data") or {}).get("cards") or []
     out: list[Article] = []
     seen: set[str] = set()

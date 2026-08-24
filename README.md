@@ -77,7 +77,17 @@ src/pages/         # Astro 页面
 2. **本地：** `export JIQIZHIXIN_COOKIE='...'` 后运行爬虫  
 3. **GitHub Actions：** Settings → Secrets → Actions → 新建 `JIQIZHIXIN_COOKIE`
 
-未配置或 Cookie 失效时，会回退到机器之心官方微博。会话会过期，需定期更新 Secret。
+未配置或 Cookie 失效时，会回退到机器之心官方微博。
+
+## 微博 Cookie（可选，救微博回退链路）
+
+m.weibo.cn 的容器接口对匿名/数据中心 IP 请求返回 **432 反爬**，导致机器之心的微博回退拿不到数据。配置 **`MWEIBO_COOKIE`** 后恢复：
+
+1. 浏览器登录 [m.weibo.cn](https://m.weibo.cn/)，开发者工具 → Network → 任选 `m.weibo.cn` 请求 → 复制 Request Headers 里的 `Cookie`（关键项是 `SUB=...`）
+2. **本地：** `export MWEIBO_COOKIE='...'`
+3. **GitHub Actions：** Settings → Secrets → Actions → 新建 `MWEIBO_COOKIE`
+
+两个 Cookie 都会过期（约每月一次）。过期时 coverage 步骤会在 Actions Summary 里把该源标为空转告警，更新 Secret 即可恢复。
 
 ## 安全提醒
 
