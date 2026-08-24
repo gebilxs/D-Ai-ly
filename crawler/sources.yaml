@@ -30,7 +30,9 @@ sources:
     kind: json_api
     url: https://mainssl.geekpark.net/api/v1/posts
     params:
-      per: "20"
+      # per=50 widens the window; harmless if the API clamps it (endpoint
+      # is unreachable from the dev network, yield tracked via coverage).
+      per: "50"
     items_path: posts
     title_key: title
     summary_key: abstract
