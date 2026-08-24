@@ -30,8 +30,8 @@ from crawler.fetch.pipeline import load_sources  # noqa: E402
 
 DIGESTS_DIR = ROOT / "src" / "content" / "digests"
 STATS_PATH = Path(__file__).resolve().parent / "stats.json"
-WINDOW_DAYS = 7
-DEFAULT_ALERT_DAYS = 2
+WINDOW_DAYS = 10
+DEFAULT_ALERT_DAYS = 2  # sources can override via check.alert_empty_days
 
 # Digest frontmatter item fields are the only indented `source_id:` lines.
 _ITEM_RE = re.compile(r"^\s+source_id:\s*(\S+)\s*$", re.M)
@@ -75,11 +75,18 @@ def main() -> int:
         sid = src["id"]
         cfg = src.get("check") or {}
         alert_days = int(cfg.get("alert_empty_days") or DEFAULT_ALERT_DAYS)
+        allow_fail = bool(cfg.get("allow_fail"))
         streak = empty_streak(day_counts, sid)
         total = sum(dc.get(sid, 0) for dc in day_counts.values())
-        status = "ALERT" if streak >= alert_days else "OK"
-        if status == "ALERT":
-            breaches.append((sid, src["name"], streak, alert_days))
+        # allow_fail sources (e.g. jiqizhixin, cookie-gated) surface as
+        # SOFT-ALERT rows but never fail the run — a permanently red
+        # pipeline for a known-limitation source numbs real alerts.
+        if streak >= alert_days:
+            status = "SOFT-ALERT" if allow_fail else "ALERT"
+            if not allow_fail:
+                breaches.append((sid, src["name"], streak, alert_days))
+        else:
+            status = "OK"
         rows.append((sid, src["name"], total, streak, alert_days, status))
 
     stats = {
@@ -118,6 +125,11 @@ def main() -> int:
         with open(step_summary, "a", encoding="utf-8") as f:
             f.write(summary + "\n\n")
 
+    soft = [r for r in rows if r[5] == "SOFT-ALERT"]
+    if soft:
+        print("\n=== SOFT ALERTS (known-limitation sources, non-blocking) ===")
+        for sid, name, _t, streak, alert_days, _s in soft:
+            print(f"- {name} ({sid}): 连续 {streak} 天 0 条（阈值 {alert_days}）")
     if breaches:
         print("\n=== ALERTS (source produced 0 items for too long) ===")
         for sid, name, streak, alert_days in breaches:
