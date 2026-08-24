@@ -288,6 +288,27 @@ a:hover {
   font-weight: 600;
 }
 
+.not-found {
+  padding-top: 3rem;
+}
+
+.not-found-links {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.not-found-latest {
+  text-decoration: none;
+  font-size: var(--text-base);
+}
+
+.not-found-latest:hover {
+  text-decoration: underline;
+}
+
 /* homepage quick source nav: inline links with interpunct separators */
 .source-inline {
   margin: 0;

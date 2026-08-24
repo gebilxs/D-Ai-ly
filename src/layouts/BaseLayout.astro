@@ -35,6 +35,12 @@ const isCurrent = (key: string) =>
       rel="stylesheet"
     />
     <title>{pageTitle}</title>
+    <link rel="canonical" href={`https://gebilxs.github.io${Astro.url.pathname}`} />
+    <meta property="og:site_name" content="D-Ai-ly" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="zh_CN" />
   </head>
   <body>
     <a class="skip-link" href="#main">跳到主要内容</a>
