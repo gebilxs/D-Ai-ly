@@ -20,6 +20,7 @@ sources:
       - https://www.qbitai.com/feed?paged=2
     html_fallback: https://www.qbitai.com/
     check:
+      alert_empty_days: 2   # daily publisher
       expect_host: qbitai.com
       min_items: 1
       probe_links: 2
@@ -38,6 +39,7 @@ sources:
     url_template: "https://www.geekpark.net/news/{id}"
     # API often returns link:null — prefer template
     check:
+      alert_empty_days: 2
       expect_host: geekpark.net
       min_items: 1
       probe_links: 2
@@ -48,6 +50,7 @@ sources:
     url: https://www.sina.cn/media/5703921756
     homepage: https://www.sina.cn/media/5703921756
     check:
+      alert_empty_days: 3   # only weibo posts carrying t.cn links are indexable
       expect_host: t.cn
       alt_expect_host: sina
       min_items: 1
@@ -74,6 +77,7 @@ sources:
     url_template: "https://hub.baai.ac.cn/view/{id}"
     id_key: id
     check:
+      alert_empty_days: 2
       expect_host: hub.baai.ac.cn
       min_items: 1
       probe_links: 2
@@ -86,6 +90,7 @@ sources:
     start_id: 1830
     scan: 50
     check:
+      alert_empty_days: 7   # ~weekly publishing cadence
       expect_host: jazzyear.com
       min_items: 1
       probe_links: 1
@@ -105,6 +110,7 @@ sources:
     fallback_cookie_env: MWEIBO_COOKIE
     uid: "5013348633"
     check:
+      alert_empty_days: 3   # needs JIQIZHIXIN_COOKIE or MWEIBO_COOKIE
       expect_host: jiqizhixin.com
       alt_expect_host: weibo
       min_items: 1

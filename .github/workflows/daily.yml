@@ -95,3 +95,16 @@ jobs:
           force_orphan: true
           user_name: github-actions[bot]
           user_email: 41898282+github-actions[bot]@users.noreply.github.com
+
+      # Runs after deploy on purpose: a red run is the alert, deploys must
+      # never be blocked by per-source emptiness.
+      - name: Coverage report & alert
+        run: python3 -m crawler.coverage
+
+      - name: Upload coverage stats
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-stats
+          path: crawler/stats.json
+          if-no-files-found: ignore
