@@ -13,3 +13,4 @@ cookies.txt
 crawler/last_errors.json
 crawler/source_check_report.json
 crawler/homepage_check_report.json
+crawler/stats.json
