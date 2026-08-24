@@ -38,7 +38,8 @@ const todayCount = latestDigest?.data.count ?? 0;
 const todaySources = new Set(items.map((i) => i.source_id)).size;
 
 const headline = items[0];
-const columnItems = items.slice(1, 10);
+const briefingItems = items.slice(1, 5);
+const columnItems = items.slice(5, 14);
 const brand = "D-Ai-ly";
 const brandChars = [...brand];
 ---
@@ -90,15 +91,27 @@ const brandChars = [...brand];
   </div>
 
   {headline ? (
-    <section class="fp-headline">
-      <p class="fp-headline-kicker">今日头条 / {headline.source}</p>
-      <a class="fp-headline-title" href={withBase(`posts/${headline.slug}/`)} data-scramble>
-        {headline.title}
-      </a>
-      {headline.summary && <p class="fp-headline-deck">{headline.summary}</p>}
-      <a class="fp-headline-more" href={withBase(`daily/${formatDate(latestDigest!.data.date)}/`)}>
-        浏览整期速报
-      </a>
+    <section class="fp-lead">
+      <div class="fp-headline">
+        <p class="fp-headline-kicker">今日头条 / {headline.source}</p>
+        <a class="fp-headline-title" href={withBase(`posts/${headline.slug}/`)} data-scramble>
+          {headline.title}
+        </a>
+        {headline.summary && <p class="fp-headline-deck">{headline.summary}</p>}
+        <a class="fp-headline-more" href={withBase(`daily/${formatDate(latestDigest!.data.date)}/`)}>
+          浏览整期速报
+        </a>
+      </div>
+      {briefingItems.length > 0 && (
+        <aside class="fp-briefing" aria-label="要闻简报">
+          {briefingItems.map((i) => (
+            <a class="fp-brief" href={withBase(`posts/${i.slug}/`)}>
+              <span class="fp-brief-source">{i.source}</span>
+              <span class="fp-brief-title">{i.title}</span>
+            </a>
+          ))}
+        </aside>
+      )}
     </section>
   ) : (
     <p class="excerpt lede">今日速报尚未生成，请稍后再来。</p>
@@ -233,12 +246,21 @@ const brandChars = [...brand];
     });
 
     // Headline and column entries cascade in (reading rhythm).
-    gsap.from(".fp-headline", {
-      y: 32,
+    gsap.from(".fp-headline > *", {
+      y: 26,
       opacity: 0,
-      duration: 0.8,
+      duration: 0.7,
       ease: "power3.out",
-      scrollTrigger: { trigger: ".fp-headline", start: "top 85%" },
+      stagger: 0.08,
+      scrollTrigger: { trigger: ".fp-lead", start: "top 85%" },
+    });
+    gsap.from(".fp-brief", {
+      x: 24,
+      opacity: 0,
+      duration: 0.6,
+      ease: "power3.out",
+      stagger: 0.09,
+      scrollTrigger: { trigger: ".fp-briefing", start: "top 88%" },
     });
     gsap.from(".fp-col-item", {
       y: 24,
