@@ -32,3 +32,21 @@ const { article } = Astro.props;
     <p class="excerpt article-note">本页为资讯索引，完整报道请阅读原文。</p>
   </article>
 </BaseLayout>
+
+<script>
+  import { gsap } from "gsap";
+
+  const mm = gsap.matchMedia();
+
+  mm.add("(prefers-reduced-motion: no-preference)", () => {
+    // Single choreographed entrance: back link, headline, meta, then
+    // summary and CTA (hierarchy follows the reading order).
+    gsap.from(".back-link, .page-title, .page-title + .meta, .article-summary, .cta", {
+      y: 18,
+      opacity: 0,
+      duration: 0.55,
+      ease: "power3.out",
+      stagger: 0.08,
+    });
+  });
+</script>
