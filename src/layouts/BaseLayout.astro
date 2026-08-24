@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import { withBase } from "../lib/paths";
+import { SOURCES } from "../lib/sources";
 
 interface Props {
   title: string;
@@ -54,6 +55,20 @@ const isCurrent = (key: string) =>
       <main id="main">
         <slot />
       </main>
+      <footer class="site-footer">
+        <div class="footer-row">
+          <a class="footer-brand" href={withBase()}>D-Ai-ly</a>
+          <nav class="footer-nav" aria-label="来源导航">
+            {SOURCES.map((s) => (
+              <a href={withBase(`sources/${s.id}/`)}>{s.name}</a>
+            ))}
+          </nav>
+        </div>
+        <p class="footer-note">
+          只索引标题、摘要与原文链接，不转载全文 ·
+          <a href="https://github.com/gebilxs/D-Ai-ly" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </p>
+      </footer>
     </div>
   </body>
 </html>

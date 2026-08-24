@@ -1,22 +1,39 @@
 ---
+import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { FEATURED_SOURCE, OTHER_SOURCES } from "../../lib/sources";
+import { FEATURED_SOURCE, OTHER_SOURCES, formatDate } from "../../lib/sources";
 import { withBase } from "../../lib/paths";
+
+const articles = await getCollection("articles");
+const counts = new Map<string, number>();
+const latest = new Map<string, string>();
+for (const a of articles) {
+  const sid = a.data.source_id;
+  counts.set(sid, (counts.get(sid) ?? 0) + 1);
+  const d = formatDate(a.data.date);
+  if (!latest.has(sid) || d > (latest.get(sid) as string)) {
+    latest.set(sid, d);
+  }
+}
+const ordered = [FEATURED_SOURCE, ...OTHER_SOURCES];
 ---
-<BaseLayout title="来源">
+<BaseLayout title="来源" description="D-Ai-ly 收录的六家公开 AI 媒体来源与各自已收录文章数。">
   <h1 class="page-title">来源</h1>
-  <p class="excerpt" style="margin-bottom: 1.5rem;">按媒体查看已收录文章。</p>
-
-  <div class="featured-source" style="margin-bottom: 1.75rem;">
-    <div class="featured-source-head">
-      <h3><a href={withBase(`sources/${FEATURED_SOURCE.id}/`)}>{FEATURED_SOURCE.name}</a></h3>
-      <span class="pill featured-pill">置顶</span>
-    </div>
-  </div>
-
-  <div class="source-grid">
-    {OTHER_SOURCES.map((s) => (
-      <a href={withBase(`sources/${s.id}/`)}>{s.name}</a>
+  <p class="excerpt lede">六家公开媒体，按媒体查看已收录文章。</p>
+  <ul class="source-list">
+    {ordered.map((s) => (
+      <li class:list={{ "source-row-featured": s.id === FEATURED_SOURCE.id }}>
+        <a class="source-entry" href={withBase(`sources/${s.id}/`)}>
+          <span class="source-name">
+            {s.name}
+            {s.id === FEATURED_SOURCE.id && <span class="pill">置顶</span>}
+          </span>
+          <span class="source-stats">
+            <span class="source-count">{counts.get(s.id) ?? 0} 篇</span>
+            <span class="source-latest">最近收录 {latest.get(s.id) ?? "—"}</span>
+          </span>
+        </a>
+      </li>
     ))}
-  </div>
+  </ul>
 </BaseLayout>

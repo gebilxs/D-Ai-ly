@@ -10,7 +10,7 @@ const articles = (await getCollection("articles")).sort(
 ---
 <BaseLayout title="全部文章">
   <h1 class="page-title">全部文章</h1>
-  <p class="excerpt" style="margin-bottom: 1.5rem;">共 {articles.length} 篇索引。</p>
+  <p class="excerpt lede">共 {articles.length} 篇索引。</p>
   <ul class="article-list">
     {articles.map((a) => (
       <li>

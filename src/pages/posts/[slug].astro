@@ -16,16 +16,19 @@ const { article } = Astro.props;
 ---
 <BaseLayout title={article.data.title} description={article.data.summary || article.data.title}>
   <article class="prose">
+    <a class="back-link" href={withBase(`daily/${formatDate(article.data.date)}/`)}>
+      ← {formatDate(article.data.date)} 速报
+    </a>
     <h1 class="page-title">{article.data.title}</h1>
     <div class="meta">
       <span class="pill">{article.data.source}</span>
       <span>{formatDate(article.data.date)}</span>
       <a href={withBase(`sources/${article.data.source_id}/`)}>来源归档</a>
     </div>
-    {article.data.summary && <p class="excerpt" style="margin-top: 1.25rem;">{article.data.summary}</p>}
+    {article.data.summary && <p class="excerpt article-summary">{article.data.summary}</p>}
     <a class="cta" href={article.data.url} target="_blank" rel="noopener noreferrer">
       阅读原文 →
     </a>
-    <p class="excerpt" style="margin-top: 2rem;">本页为资讯索引，完整报道请阅读原文。</p>
+    <p class="excerpt article-note">本页为资讯索引，完整报道请阅读原文。</p>
   </article>
 </BaseLayout>
