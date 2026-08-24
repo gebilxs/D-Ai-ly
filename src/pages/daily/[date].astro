@@ -10,14 +10,20 @@ import {
 import { withBase } from "../../lib/paths";
 
 export async function getStaticPaths() {
-  const digests = await getCollection("digests");
-  return digests.map((d) => ({
+  const digests = (await getCollection("digests")).sort(
+    (a, b) => a.data.date.valueOf() - b.data.date.valueOf(),
+  );
+  return digests.map((d, i) => ({
     params: { date: formatDate(d.data.date) },
-    props: { digest: d },
+    props: {
+      digest: d,
+      prev: digests[i - 1] ? formatDate(digests[i - 1].data.date) : null,
+      next: digests[i + 1] ? formatDate(digests[i + 1].data.date) : null,
+    },
   }));
 }
 
-const { digest } = Astro.props;
+const { digest, prev, next } = Astro.props;
 const bySource = new Map<string, typeof digest.data.items>();
 for (const item of digest.data.items) {
   const list = bySource.get(item.source_id) ?? [];
@@ -71,4 +77,16 @@ const orderedIds = sortSourceIds([...bySource.keys()]);
       );
     })}
   </article>
+  <nav class="digest-nav" aria-label="日更导航">
+    {prev ? (
+      <a class="digest-nav-prev" href={withBase(`daily/${prev}/`)}>← 前一天</a>
+    ) : (
+      <span class="digest-nav-edge">已是最早一期</span>
+    )}
+    {next ? (
+      <a class="digest-nav-next" href={withBase(`daily/${next}/`)}>后一天 →</a>
+    ) : (
+      <span class="digest-nav-edge">已是最新一期</span>
+    )}
+  </nav>
 </BaseLayout>

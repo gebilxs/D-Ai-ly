@@ -24,10 +24,35 @@ const featuredItems =
 const featuredArticles = articles
   .filter((a) => a.data.source_id === FEATURED_SOURCE_ID)
   .slice(0, 5);
+
+// masthead: content-driven date + issue number (not build time)
+const issueDate = latestDigest
+  ? new Intl.DateTimeFormat("zh-CN", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      weekday: "long",
+      timeZone: "Asia/Shanghai",
+    }).format(latestDigest.data.date)
+  : "";
+const issueNumber = digests.length;
+const headline = latestDigest?.data.items[0];
 ---
 <BaseLayout title="D-Ai-ly" description="每日中文 AI 科技资讯速报与原文索引。">
-  <section class="hero">
+  <section class="hero masthead">
+    {issueDate && (
+      <p class="masthead-date">
+        {issueDate} <span class="masthead-sep">·</span> 第 {issueNumber} 期
+      </p>
+    )}
     <h1 class="hero-brand">D-Ai-ly</h1>
+    {latestDigest && headline && (
+      <p class="masthead-line">
+        今日收录 {latestDigest.data.count} 条，头条：
+        <a href={withBase(`posts/${headline.slug}/`)}>{headline.title}</a>
+      </p>
+    )}
+    {!latestDigest && <p class="hero-tagline">每日中文 AI 资讯速报与原文索引。</p>}
   </section>
 
   <section class="section">
