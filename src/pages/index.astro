@@ -4,7 +4,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import {
   FEATURED_SOURCE,
   FEATURED_SOURCE_ID,
-  OTHER_SOURCES,
+  SOURCES,
   formatDate,
 } from "../lib/sources";
 import { withBase } from "../lib/paths";
@@ -18,14 +18,13 @@ const articles = (await getCollection("articles")).sort(
 const latestDigests = digests.slice(0, 7);
 
 const latestDigest = digests[0];
-const featuredItems =
-  latestDigest?.data.items.filter((i) => i.source_id === FEATURED_SOURCE_ID) ??
-  [];
+const items = latestDigest?.data.items ?? [];
+const featuredItems = items.filter((i) => i.source_id === FEATURED_SOURCE_ID);
 const featuredArticles = articles
   .filter((a) => a.data.source_id === FEATURED_SOURCE_ID)
   .slice(0, 5);
 
-// masthead: content-driven date + issue number (not build time)
+// masthead facts, all content-driven (never build time)
 const issueDate = latestDigest
   ? new Intl.DateTimeFormat("zh-CN", {
       year: "numeric",
@@ -36,38 +35,97 @@ const issueDate = latestDigest
     }).format(latestDigest.data.date)
   : "";
 const issueNumber = digests.length;
-const headline = latestDigest?.data.items[0];
+const todayCount = latestDigest?.data.count ?? 0;
+const todaySources = new Set(items.map((i) => i.source_id)).size;
+const todayBySource = new Map<string, number>();
+for (const i of items) {
+  todayBySource.set(i.source_id, (todayBySource.get(i.source_id) ?? 0) + 1);
+}
+
+const headline = items[0];
+const columnItems = items.slice(1, 10);
+const brand = "D-Ai-ly";
+const brandChars = [...brand];
 ---
 <BaseLayout title="D-Ai-ly" description="每日中文 AI 科技资讯速报与原文索引。">
-  <section class="hero masthead">
-    {issueDate && (
-      <p class="masthead-date">
-        {issueDate} <span class="masthead-sep">·</span> 第 {issueNumber} 期
-      </p>
-    )}
-    <h1 class="hero-brand">D-Ai-ly</h1>
-    {latestDigest && headline && (
-      <p class="masthead-line">
-        今日收录 {latestDigest.data.count} 条，头条：
-        <a href={withBase(`posts/${headline.slug}/`)}>{headline.title}</a>
-      </p>
-    )}
-    {!latestDigest && <p class="hero-tagline">每日中文 AI 资讯速报与原文索引。</p>}
+  <section class="fp-masthead">
+    <p class="fp-masthead-line">
+      {issueDate && <span>{issueDate}</span>}
+      <span>第 {issueNumber} 期</span>
+      <span>今日 {todayCount} 条</span>
+    </p>
+    <h1 class="fp-brand" aria-label={brand}>
+      {brandChars.map((c) => (
+        <span class="fp-char" aria-hidden="true">{c}</span>
+      ))}
+    </h1>
+    <p class="fp-tagline">中文 AI 资讯日报，只索引标题与原文链接。</p>
   </section>
 
-  <section class="section">
-    <div class="section-head">
-      <h2>每日速报</h2>
-      {latestDigest && (
-        <a href={withBase(`daily/${formatDate(latestDigest.data.date)}/`)}>查看最新 →</a>
-      )}
+  {items.length > 0 && (
+    <div class="fp-ticker">
+      <div class="fp-ticker-track">
+        <div class="fp-ticker-seg">
+          {items.map((i) => (
+            <a href={withBase(`posts/${i.slug}/`)}>{i.title}</a>
+          ))}
+        </div>
+        <div class="fp-ticker-seg" aria-hidden="true">
+          {items.map((i) => (
+            <a href={withBase(`posts/${i.slug}/`)} tabindex="-1">{i.title}</a>
+          ))}
+        </div>
+      </div>
     </div>
+  )}
 
+  <div class="fp-stats">
+    <div class="fp-stat">
+      <span class="fp-stat-num" data-count={todayCount}>{todayCount}</span>
+      <span class="fp-stat-label">今日收录 / 条</span>
+    </div>
+    <div class="fp-stat">
+      <span class="fp-stat-num" data-count={todaySources}>{todaySources}</span>
+      <span class="fp-stat-label">活跃来源 / 家</span>
+    </div>
+    <div class="fp-stat">
+      <span class="fp-stat-num" data-count={issueNumber}>{issueNumber}</span>
+      <span class="fp-stat-label">总期数 / 期</span>
+    </div>
+  </div>
+
+  {headline ? (
+    <section class="fp-headline">
+      <p class="fp-headline-kicker">今日头条 / {headline.source}</p>
+      <a class="fp-headline-title" href={withBase(`posts/${headline.slug}/`)} data-scramble>
+        {headline.title}
+      </a>
+      {headline.summary && <p class="fp-headline-deck">{headline.summary}</p>}
+      <a class="fp-headline-more" href={withBase(`daily/${formatDate(latestDigest!.data.date)}/`)}>
+        浏览整期速报
+      </a>
+    </section>
+  ) : (
+    <p class="excerpt lede">今日速报尚未生成，请稍后再来。</p>
+  )}
+
+  {columnItems.length > 0 && (
+    <section class="fp-columns" aria-label="今日要闻">
+      {columnItems.map((i) => (
+        <a class="fp-col-item" href={withBase(`posts/${i.slug}/`)}>
+          <span class="fp-col-source">{i.source}</span>
+          <span class="fp-col-title">{i.title}</span>
+        </a>
+      ))}
+    </section>
+  )}
+
+  <section class="section">
     <div class="featured-source">
       <div class="featured-source-head">
-        <h3>
+        <h2>
           <a href={withBase(`sources/${FEATURED_SOURCE.id}/`)}>{FEATURED_SOURCE.name}</a>
-        </h3>
+        </h2>
         <div class="featured-source-links">
           <a href={FEATURED_SOURCE.url} target="_blank" rel="noopener noreferrer">官网</a>
           {FEATURED_SOURCE.jumpUrl && FEATURED_SOURCE.jumpLabel && (
@@ -97,7 +155,27 @@ const headline = latestDigest?.data.items[0];
         <p class="excerpt featured-empty">今日暂未收录机器之心（官网需登录会话）。</p>
       )}
     </div>
+  </section>
 
+  <section class="section">
+    <div class="section-head">
+      <h2>分源速览</h2>
+      <a href={withBase("sources/")}>全部来源</a>
+    </div>
+    <div class="fp-chips">
+      {SOURCES.map((s) => (
+        <a class="fp-chip" href={withBase(`sources/${s.id}/`)}>
+          {s.name}
+          <b class="fp-chip-count">{todayBySource.get(s.id) ?? 0}</b>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2>近 7 期速报</h2>
+    </div>
     {latestDigests.length === 0 ? (
       <p class="excerpt">暂无日更，请先运行爬虫或等待 Actions 更新。</p>
     ) : (
@@ -116,19 +194,112 @@ const headline = latestDigest?.data.items[0];
       </ul>
     )}
   </section>
-
-  <section class="section">
-    <div class="section-head">
-      <h2>订阅源</h2>
-      <a href={withBase("sources/")}>全部来源 →</a>
-    </div>
-    <p class="source-inline">
-      <a class="source-inline-featured" href={withBase(`sources/${FEATURED_SOURCE.id}/`)}>
-        {FEATURED_SOURCE.name}
-      </a>
-      {OTHER_SOURCES.map((s) => (
-        <a href={withBase(`sources/${s.id}/`)}>{s.name}</a>
-      ))}
-    </p>
-  </section>
 </BaseLayout>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const mm = gsap.matchMedia();
+
+  // Everything animated is gated behind no-preference; users who ask for
+  // reduced motion get the fully-rendered static page.
+  mm.add("(prefers-reduced-motion: no-preference)", () => {
+    // Masthead: characters rise into place (hierarchy: nameplate first).
+    gsap.from(".fp-char", {
+      yPercent: 120,
+      rotate: 6,
+      opacity: 0,
+      duration: 0.9,
+      ease: "power4.out",
+      stagger: 0.05,
+    });
+    gsap.from(".fp-masthead-line, .fp-tagline", {
+      opacity: 0,
+      y: -8,
+      duration: 0.6,
+      delay: 0.25,
+    });
+
+    // Masthead scrub on exit (depth cue while leaving the nameplate).
+    gsap.to(".fp-masthead", {
+      scale: 0.96,
+      opacity: 0.35,
+      ease: "none",
+      scrollTrigger: {
+        trigger: ".fp-masthead",
+        start: "bottom 90%",
+        end: "bottom 45%",
+        scrub: true,
+      },
+    });
+
+    // Stat band: numbers count up to their real values (data moment).
+    document.querySelectorAll<HTMLElement>(".fp-stat-num").forEach((el) => {
+      const target = Number(el.dataset.count ?? "0");
+      if (!target) return;
+      const state = { v: 0 };
+      gsap.to(state, {
+        v: target,
+        duration: 1.4,
+        ease: "power2.out",
+        scrollTrigger: { trigger: el, start: "top 88%", once: true },
+        onUpdate: () => {
+          el.textContent = String(Math.round(state.v));
+        },
+      });
+    });
+
+    // Headline and column entries cascade in (reading rhythm).
+    gsap.from(".fp-headline", {
+      y: 32,
+      opacity: 0,
+      duration: 0.8,
+      ease: "power3.out",
+      scrollTrigger: { trigger: ".fp-headline", start: "top 85%" },
+    });
+    gsap.from(".fp-col-item", {
+      y: 24,
+      opacity: 0,
+      duration: 0.6,
+      ease: "power3.out",
+      stagger: 0.06,
+      scrollTrigger: { trigger: ".fp-columns", start: "top 82%" },
+    });
+
+    // Headline hover: glyph scramble then settle (playful affordance).
+    const title = document.querySelector<HTMLElement>("[data-scramble]");
+    if (title) {
+      const glyphs = "■▲●◆□○◎△◢◣◤◥◈◇";
+      const original = title.textContent ?? "";
+      let running = false;
+      const scramble = () => {
+        if (running) return;
+        running = true;
+        let frame = 0;
+        const settle = Array.from(original.length);
+        const timer = window.setInterval(() => {
+          frame += 1;
+          let done = 0;
+          const next = Array.from(original, (ch, idx) => {
+            if (frame > idx * 2 + 4) {
+              done += 1;
+              return ch;
+            }
+            return ch === " " ? " " : glyphs[Math.floor(Math.random() * glyphs.length)];
+          });
+          title.textContent = next.join("");
+          if (done >= original.length) {
+            window.clearInterval(timer);
+            title.textContent = original;
+            running = false;
+          }
+        }, 40);
+      };
+      title.addEventListener("mouseenter", scramble);
+      title.addEventListener("focus", scramble);
+    }
+  });
+</script>
