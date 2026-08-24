@@ -9,6 +9,16 @@ interface Props {
 
 const { title, description = "中文 AI 科技资讯日更：机器之心置顶，兼收量子位、极客公园等来源。" } = Astro.props;
 const pageTitle = title === "D-Ai-ly" ? "D-Ai-ly · 每日 AI 资讯" : `${title} · D-Ai-ly`;
+
+const navItems = [
+  { href: withBase(), label: "首页", key: "" },
+  { href: withBase("posts/"), label: "文章", key: "posts/" },
+  { href: withBase("sources/"), label: "来源", key: "sources/" },
+  { href: withBase("about/"), label: "关于", key: "about/" },
+];
+const currentKey = Astro.url.pathname.replace(import.meta.env.BASE_URL, "");
+const isCurrent = (key: string) =>
+  key === "" ? currentKey === "" : currentKey.startsWith(key);
 ---
 <!doctype html>
 <html lang="zh-CN">
@@ -26,15 +36,22 @@ const pageTitle = title === "D-Ai-ly" ? "D-Ai-ly · 每日 AI 资讯" : `${title
     <title>{pageTitle}</title>
   </head>
   <body>
+    <a class="skip-link" href="#main">跳到主要内容</a>
     <div class="site-shell">
       <header class="site-header">
         <a class="brand" href={withBase()}>D-Ai-ly</a>
         <nav class="nav" aria-label="主导航">
-          <a href={withBase()}>首页</a>
-          <a href={withBase("about/")}>关于</a>
+          {navItems.map((item) => (
+            <a
+              href={item.href}
+              aria-current={isCurrent(item.key) ? "page" : undefined}
+            >
+              {item.label}
+            </a>
+          ))}
         </nav>
       </header>
-      <main>
+      <main id="main">
         <slot />
       </main>
     </div>
