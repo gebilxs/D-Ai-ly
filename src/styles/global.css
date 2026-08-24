@@ -646,13 +646,6 @@ a:hover {
   padding: 0.75rem 0;
 }
 
-.source-grid.featured-first .source-featured {
-  grid-column: 1 / -1;
-  font-weight: 600;
-  border-color: rgba(var(--accent-rgb), 0.28);
-  background: rgba(var(--accent-rgb), 0.06);
-}
-
 .source-group ul {
   list-style: none;
   margin: 0;
