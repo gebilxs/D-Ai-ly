@@ -1,0 +1,96 @@
+{
+  "date": "2026-08-24",
+  "window_days": 7,
+  "per_day": {
+    "2026-08-17": {
+      "geekpark": 4,
+      "sina_media": 3,
+      "baai": 13,
+      "qbitai": 5
+    },
+    "2026-08-18": {
+      "baai": 25,
+      "qbitai": 11,
+      "sina_media": 2,
+      "geekpark": 3
+    },
+    "2026-08-19": {
+      "baai": 20,
+      "qbitai": 9,
+      "geekpark": 5,
+      "sina_media": 2
+    },
+    "2026-08-20": {
+      "baai": 23,
+      "qbitai": 9,
+      "sina_media": 1,
+      "geekpark": 3
+    },
+    "2026-08-21": {
+      "geekpark": 5,
+      "baai": 24,
+      "sina_media": 2,
+      "qbitai": 14
+    },
+    "2026-08-22": {
+      "qbitai": 7,
+      "baai": 21,
+      "geekpark": 2
+    },
+    "2026-08-23": {
+      "qbitai": 9,
+      "geekpark": 3,
+      "baai": 5
+    }
+  },
+  "sources": [
+    {
+      "id": "qbitai",
+      "name": "量子位",
+      "items_7d": 64,
+      "empty_streak_days": 0,
+      "alert_empty_days": 2,
+      "status": "OK"
+    },
+    {
+      "id": "geekpark",
+      "name": "极客公园",
+      "items_7d": 25,
+      "empty_streak_days": 0,
+      "alert_empty_days": 2,
+      "status": "OK"
+    },
+    {
+      "id": "sina_media",
+      "name": "新智元",
+      "items_7d": 10,
+      "empty_streak_days": 2,
+      "alert_empty_days": 3,
+      "status": "OK"
+    },
+    {
+      "id": "baai",
+      "name": "智源社区",
+      "items_7d": 131,
+      "empty_streak_days": 0,
+      "alert_empty_days": 2,
+      "status": "OK"
+    },
+    {
+      "id": "jazzyear",
+      "name": "甲子光年",
+      "items_7d": 0,
+      "empty_streak_days": 7,
+      "alert_empty_days": 7,
+      "status": "ALERT"
+    },
+    {
+      "id": "jiqizhixin",
+      "name": "机器之心",
+      "items_7d": 0,
+      "empty_streak_days": 7,
+      "alert_empty_days": 3,
+      "status": "ALERT"
+    }
+  ]
+}
