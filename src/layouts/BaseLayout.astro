@@ -13,8 +13,6 @@ const pageTitle = title === "D-Ai-ly" ? "D-Ai-ly · 每日 AI 资讯" : `${title
 
 const navItems = [
   { href: withBase(), label: "首页", key: "" },
-  { href: withBase("posts/"), label: "文章", key: "posts/" },
-  { href: withBase("sources/"), label: "来源", key: "sources/" },
   { href: withBase("about/"), label: "关于", key: "about/" },
 ];
 const currentKey = Astro.url.pathname.replace(import.meta.env.BASE_URL, "");

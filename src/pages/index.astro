@@ -4,7 +4,6 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import {
   FEATURED_SOURCE,
   FEATURED_SOURCE_ID,
-  SOURCES,
   formatDate,
 } from "../lib/sources";
 import { withBase } from "../lib/paths";
@@ -37,10 +36,6 @@ const issueDate = latestDigest
 const issueNumber = digests.length;
 const todayCount = latestDigest?.data.count ?? 0;
 const todaySources = new Set(items.map((i) => i.source_id)).size;
-const todayBySource = new Map<string, number>();
-for (const i of items) {
-  todayBySource.set(i.source_id, (todayBySource.get(i.source_id) ?? 0) + 1);
-}
 
 const headline = items[0];
 const columnItems = items.slice(1, 10);
@@ -159,21 +154,6 @@ const brandChars = [...brand];
 
   <section class="section">
     <div class="section-head">
-      <h2>分源速览</h2>
-      <a href={withBase("sources/")}>全部来源</a>
-    </div>
-    <div class="fp-chips">
-      {SOURCES.map((s) => (
-        <a class="fp-chip" href={withBase(`sources/${s.id}/`)}>
-          {s.name}
-          <b class="fp-chip-count">{todayBySource.get(s.id) ?? 0}</b>
-        </a>
-      ))}
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="section-head">
       <h2>近 7 期速报</h2>
     </div>
     {latestDigests.length === 0 ? (
@@ -272,7 +252,7 @@ const brandChars = [...brand];
     // Headline hover: glyph scramble then settle (playful affordance).
     const title = document.querySelector<HTMLElement>("[data-scramble]");
     if (title) {
-      const glyphs = "■▲●◆□○◎△◢◣◤◥◈◇";
+      const glyphs = "アカサタナハマヤラワイキシチニヒミリヰ";
       const original = title.textContent ?? "";
       let running = false;
       const scramble = () => {
