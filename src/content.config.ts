@@ -32,7 +32,8 @@ const digests = defineCollection({
           summary: z.string().default(""),
         }),
       )
-      .default([]),
+      .nullish()
+      .transform((v) => v ?? []),
   }),
 });
 

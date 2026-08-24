@@ -132,3 +132,25 @@ class DigestDedupTests(unittest.TestCase):
 
 if __name__ == "__main__":
     raise SystemExit(unittest.main())
+
+
+class EmptyDigestTests(unittest.TestCase):
+    def test_new_day_zero_articles_writes_no_digest(self):
+        """A day with no articles and no existing digest file must not
+        create one: bare `items:` parses as null and fails the Astro
+        build (broke the hourly pipeline at Shanghai midnight)."""
+        import tempfile
+        from datetime import date as date_cls
+        from unittest import mock as mock_mod
+        from crawler import run as run_mod
+
+        with tempfile.TemporaryDirectory() as td:
+            tdir = Path(td)
+            with mock_mod.patch.object(run_mod, "ARTICLES_DIR", tdir / "articles"), \
+                 mock_mod.patch.object(run_mod, "DIGESTS_DIR", tdir / "digests"), \
+                 mock_mod.patch.object(run_mod, "ERRORS_PATH", tdir / "errors.json"), \
+                 mock_mod.patch.object(run_mod, "fetch_all", return_value=([], [])):
+                result = run_mod.run("2026-08-25")
+            self.assertFalse((tdir / "digests" / "2026-08-25.md").exists())
+            self.assertEqual(result["digest_count"], 0)
+            self.assertEqual(result["digest"], "")

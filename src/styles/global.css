@@ -375,11 +375,6 @@ a:hover {
   will-change: transform;
 }
 
-.fp-tagline {
-  margin: 0.9rem 0 0;
-  color: var(--muted);
-  font-size: var(--text-base);
-}
 
 /* news ticker: a fast blurred headline stream; hover freezes it and
  * focuses the blur so individual stories become selectable */

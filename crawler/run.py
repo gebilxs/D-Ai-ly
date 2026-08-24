@@ -317,7 +317,17 @@ def run(
         seen.add(k)
         unique_day.append(a)
 
-    digest_path = write_digest(target, unique_day, slug_by_id)
+    # A brand-new day with zero articles must NOT create a digest file:
+    # `items:` with nothing under it parses as YAML null and the Astro
+    # content schema rejects it, failing every build until the day gets
+    # its first article (seen breaking the hourly pipeline at Shanghai
+    # midnight). No file = site shows 暂无日更, which is the truth.
+    if unique_day or (DIGESTS_DIR / f"{target.isoformat()}.md").exists():
+        digest_path = write_digest(target, unique_day, slug_by_id)
+        digest_rel = str(digest_path.relative_to(ROOT))
+    else:
+        digest_path = None
+        digest_rel = ""
     ERRORS_PATH.write_text(
         json.dumps(errors, ensure_ascii=False, indent=2), encoding="utf-8"
     )
@@ -327,7 +337,7 @@ def run(
         "fetched": len(articles),
         "created": len(created),
         "digest_count": len(unique_day),
-        "digest": str(digest_path.relative_to(ROOT)),
+        "digest": digest_rel,
         "errors": len(errors),
         "new_files": created,
     }

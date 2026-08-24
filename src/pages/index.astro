@@ -55,7 +55,6 @@ const brandChars = [...brand];
         <span class="fp-char" aria-hidden="true">{c}</span>
       ))}
     </h1>
-    <p class="fp-tagline">中文 AI 资讯日报，只索引标题与原文链接。</p>
   </section>
 
   {items.length > 0 && (
@@ -209,7 +208,7 @@ const brandChars = [...brand];
       ease: "power4.out",
       stagger: 0.05,
     });
-    gsap.from(".fp-masthead-line, .fp-tagline", {
+    gsap.from(".fp-masthead-line", {
       opacity: 0,
       y: -8,
       duration: 0.6,
