@@ -77,8 +77,8 @@ sources:
     kind: jazzyear_scan
     url: https://www.jazzyear.com/
     homepage: https://www.jazzyear.com/
-    start_id: 1700
-    scan: 40
+    start_id: 1830
+    scan: 50
     check:
       expect_host: jazzyear.com
       min_items: 1
