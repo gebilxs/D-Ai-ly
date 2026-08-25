@@ -222,7 +222,7 @@ a:hover {
 }
 
 .article-note {
-  margin-top: 2rem;
+  margin-top: 4rem;
   color: var(--muted);
   font-size: var(--text-sm);
 }
