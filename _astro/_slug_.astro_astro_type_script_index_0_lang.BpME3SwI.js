@@ -1,0 +1,1 @@
+import{g as e}from"./index.CzGW6FVa.js";const a=e.matchMedia();a.add("(prefers-reduced-motion: no-preference)",()=>{e.from(".back-link, .page-title, .page-title + .meta, .article-summary, .cta",{y:18,opacity:0,duration:.55,ease:"power3.out",stagger:.08})});
