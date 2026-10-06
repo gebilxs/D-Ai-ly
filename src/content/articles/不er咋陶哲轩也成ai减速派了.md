@@ -1,0 +1,13 @@
+---
+title: "不er，咋陶哲轩也成AI减速派了？？"
+date: 2026-10-06
+source: "量子位"
+source_id: qbitai
+url: "https://www.qbitai.com/2026/10/501736.html"
+summary: "扫码关注量子位"
+tags:
+  - AI
+article_id: 1da032c63dfedaa6
+---
+
+本页为资讯索引，完整报道请阅读原文。
