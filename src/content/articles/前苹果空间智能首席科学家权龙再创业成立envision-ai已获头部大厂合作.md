@@ -1,0 +1,13 @@
+---
+title: "前苹果空间智能首席科学家权龙再创业：成立Envision AI，已获头部大厂合作"
+date: 2026-11-25
+source: "甲子光年"
+source_id: jazzyear
+url: "https://www.jazzyear.com/article_info.html?id=1912"
+summary: "甲子光年作为中国科技产业智库，为服务决策而生，帮助决策者掌握科技风向，致力于推动中国科技产业化、产业科技化进程。"
+tags:
+  - AI
+article_id: a07773f1629d1a75
+---
+
+本页为资讯索引，完整报道请阅读原文。
